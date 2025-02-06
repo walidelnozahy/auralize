@@ -1,7 +1,4 @@
-import ConnectSupabaseSteps from '@/components/tutorial/connect-supabase-steps';
-import SignUpUserSteps from '@/components/tutorial/sign-up-user-steps';
 import { Button } from '@/components/ui/button';
-import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import { signInWithSpotifyAction } from './actions';
 import SupabaseLogo from '@/components/supabase-logo';
 import NextLogo from '@/components/next-logo';
@@ -57,13 +54,8 @@ export default async function Home() {
           </svg>
           Sign in with Spotify
         </Button>
-
         <div className='w-full p-[1px] bg-gradient-to-r from-transparent via-foreground/10 to-transparent my-8' />
       </div>
-      <main className='flex-1 flex flex-col gap-6 px-4'>
-        <h2 className='font-medium text-xl mb-4'>Next steps</h2>
-        {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-      </main>
     </>
   );
 }
