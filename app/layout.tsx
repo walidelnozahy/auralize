@@ -1,6 +1,6 @@
 import DeployButton from '@/components/deploy-button';
 import { EnvVarWarning } from '@/components/env-var-warning';
-import HeaderAuth from '@/components/header-auth';
+import HeaderAuth from '@/components/user-dropdown';
 import { ThemeSwitcher } from '@/components/theme-switcher';
 import { hasEnvVars } from '@/utils/supabase/check-env-vars';
 import { Geist } from 'next/font/google';
@@ -41,15 +41,12 @@ export default function RootLayout({
             <div className='flex-1 w-full flex flex-col items-center'>
               <nav className='w-full flex justify-center border-b border-b-foreground/10 h-16'>
                 <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
-                  <div className='flex gap-5 items-center font-semibold'>
-                    <Link href={'/'}>Auralize</Link>
-                    <div className='flex items-center gap-2'>
-                      <DeployButton />
-                    </div>
-                  </div>
+                  <Link href={'/'} className='font-semibold'>
+                    Auralize
+                  </Link>
                   <div className='flex items-center gap-2'>
                     <ThemeSwitcher />
-                    {!hasEnvVars ? <EnvVarWarning /> : <HeaderAuth />}
+                    <HeaderAuth />
                   </div>
                 </div>
               </nav>
@@ -58,13 +55,14 @@ export default function RootLayout({
               </div>
 
               <footer className='w-full border-t'>
-                <div className='max-w-5xl mx-auto py-8 px-5 text-center text-xs'>
+                <div className='max-w-5xl mx-auto py-8 px-5 text-center text-xs flex items-center justify-center gap-2'>
                   <p className='text-muted-foreground'>
                     Built with ❤️ by{' '}
                     <a href='https://github.com/walidelnozahy'>
                       Walid Elnozahy
                     </a>
                   </p>
+                  <DeployButton />
                 </div>
               </footer>
             </div>

@@ -20,9 +20,9 @@ export const signInWithSpotifyAction = async () => {
   if (data.url) {
     redirect(data.url); // use the redirect API for your server framework
   }
-  if (error) {
-    return redirect('/auth/auth-code-error');
-  }
+  // if (error) {
+  //   return redirect('/auth/auth-code-error');
+  // }
 
   // http://localhost:3000/sign-in#error=access_denied&error_code=provider_email_needs_verification&error_description=Unverified+email+with+spotify.+A+confirmation+email+has+been+sent+to+your+spotify+email
 };
