@@ -1,0 +1,61 @@
+'use server';
+
+import {
+  SPOTIFY_ACCESS_TOKEN,
+  SPOTIFY_REFRESH_TOKEN,
+} from '@/utils/spotify/constants';
+import { createClient } from '@/utils/supabase/server';
+import { cookies, headers } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+export const signInWithSpotifyAction = async () => {
+  const supabase = await createClient();
+  const origin = (await headers()).get('origin');
+
+  const scopes = [
+    'playlist-read-private', // Read user's playlists
+    'user-library-read', // Access liked songs
+    'streaming', // Play music
+    'user-modify-playback-state', // Control playback (play, pause, next)
+    'user-read-currently-playing', // Get currently playing track
+    'user-read-playback-state', // Get playback state (needed for player UI)
+    'user-read-email', // Get user's email (optional)
+    'user-read-private', // Get user's private profile info (optional)
+  ].join(' '); // Join scopes as a space-separated string
+
+  const { error, data } = await supabase.auth.signInWithOAuth({
+    provider: 'spotify',
+    options: {
+      redirectTo: `${origin}/auth/callback`,
+      scopes, // Add scopes here
+    },
+  });
+
+  if (data.url) {
+    redirect(data.url);
+  }
+};
+
+export const signOutAction = async () => {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+
+  // 🔥 Clear Spotify cookies
+  const cookieStore = await cookies();
+  cookieStore.set(SPOTIFY_ACCESS_TOKEN, '', {
+    httpOnly: true,
+    secure: false,
+    path: '/',
+    maxAge: 0,
+  });
+  cookieStore.set(SPOTIFY_REFRESH_TOKEN, '', {
+    httpOnly: true,
+    secure: false,
+    path: '/',
+    maxAge: 0,
+  });
+
+  console.log('Cleared Spotify cookies on logout.');
+
+  return redirect('/');
+};

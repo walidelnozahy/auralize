@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { signInWithSpotifyAction } from './actions';
+import { signInWithSpotifyAction } from './actions/session';
 import SupabaseLogo from '@/components/supabase-logo';
 import NextLogo from '@/components/next-logo';
 

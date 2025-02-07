@@ -1,24 +1,32 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient, storeSpotifyTokens } from '@/utils/supabase/server';
 import { NextResponse } from 'next/server';
 
 export async function GET(request: Request) {
-  // The `/auth/callback` route is required for the server-side auth flow implemented
-  // by the SSR package. It exchanges an auth code for the user's session.
-  // https://supabase.com/docs/guides/auth/server-side/nextjs
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const origin = requestUrl.origin;
-  const redirectTo = requestUrl.searchParams.get('redirect_to')?.toString();
 
-  if (code) {
-    const supabase = await createClient();
-    await supabase.auth.exchangeCodeForSession(code);
+  if (!code) {
+    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
-  if (redirectTo) {
-    return NextResponse.redirect(`${origin}${redirectTo}`);
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error('Spotify Auth Callback Error:', error);
+    return NextResponse.redirect(`${origin}/auth/auth-code-error`);
   }
 
-  // URL to redirect to after sign up process completes
+  // Extract tokens
+  const providerToken = data.session?.provider_token;
+  const providerRefreshToken = data.session?.provider_refresh_token;
+
+  if (providerToken && providerRefreshToken) {
+    // 🔥 Store Spotify tokens using the new function
+    await storeSpotifyTokens(providerToken, providerRefreshToken);
+    console.log('Stored Spotify tokens successfully via Server Component.');
+  }
+
   return NextResponse.redirect(`${origin}/protected`);
 }

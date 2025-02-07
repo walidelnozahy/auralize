@@ -1,6 +1,6 @@
 'use client';
 
-import { signInWithSpotifyAction } from '@/app/actions';
+import { signInWithSpotifyAction } from '@/app/actions/session';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, Mail } from 'lucide-react';
 import Link from 'next/link';

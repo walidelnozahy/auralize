@@ -1,9 +1,11 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
+import {
+  SPOTIFY_ACCESS_TOKEN,
+  SPOTIFY_REFRESH_TOKEN,
+} from '../spotify/constants';
 
 export const updateSession = async (request: NextRequest) => {
-  // This `try/catch` block is only here for the interactive tutorial.
-  // Feel free to remove once you have Supabase connected.
   try {
     // Create an unmodified response
     let response = NextResponse.next({
@@ -40,22 +42,43 @@ export const updateSession = async (request: NextRequest) => {
 
     const {
       data: { user },
-      error,
+      error: userError,
     } = await supabase.auth.getUser();
+    const {
+      data: { session },
+      error: sessionError,
+    } = await supabase.auth.getSession();
+    const error = userError || sessionError;
+    console.log('Session Data:', session);
+    console.log('User Data:', user);
 
-    const { searchParams } = new URL(request.url);
+    // 🚀 Store Spotify tokens in cookies if available
+    const providerToken = session?.provider_token;
+    const providerRefreshToken = session?.provider_refresh_token;
 
-    searchParams.forEach((value, key) => {
-      console.log(`${key}: ${value}`);
-    });
+    if (providerToken && providerRefreshToken) {
+      response.cookies.set(SPOTIFY_ACCESS_TOKEN, providerToken, {
+        httpOnly: true,
+        secure: false,
+        path: '/',
+      });
+      response.cookies.set(SPOTIFY_REFRESH_TOKEN, providerRefreshToken, {
+        httpOnly: true,
+        secure: false,
+        path: '/',
+      });
 
-    // protected routes
+      console.log('Stored Spotify tokens in cookies via middleware.');
+    }
+
+    // 🚀 Protected Routes: Redirect if user is not authenticated
     if (request.nextUrl.pathname.startsWith('/protected') && !!error) {
       return NextResponse.redirect(
         new URL('/auth/auth-code-error', request.url),
       );
     }
 
+    // 🚀 Redirect authenticated users from auth pages to protected area
     if (
       (request.nextUrl.pathname === '/' ||
         request.nextUrl.pathname.startsWith('/auth')) &&
@@ -66,10 +89,7 @@ export const updateSession = async (request: NextRequest) => {
 
     return response;
   } catch (e) {
-    console.log('eee', e);
-    // If you are here, a Supabase client could not be created!
-    // This is likely because you have not set up environment variables.
-    // Check out http://localhost:3000 for Next Steps.
+    console.error('Middleware Error:', e);
     return NextResponse.next({
       request: {
         headers: request.headers,

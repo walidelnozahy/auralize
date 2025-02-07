@@ -1,5 +1,9 @@
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import {
+  SPOTIFY_ACCESS_TOKEN,
+  SPOTIFY_REFRESH_TOKEN,
+} from '../spotify/constants';
 
 export const createClient = async () => {
   const cookieStore = await cookies();
@@ -26,4 +30,30 @@ export const createClient = async () => {
       },
     },
   );
+};
+
+// 🔥 New Function: Store Spotify Tokens Like Supabase
+export const storeSpotifyTokens = async (
+  accessToken: string,
+  refreshToken: string,
+) => {
+  try {
+    const cookieStore = await cookies();
+
+    cookieStore.set(SPOTIFY_ACCESS_TOKEN, accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+
+    cookieStore.set(SPOTIFY_REFRESH_TOKEN, refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
+    });
+
+    console.log('Spotify tokens stored successfully!');
+  } catch (error) {
+    console.error('Error storing Spotify tokens:', error);
+  }
 };

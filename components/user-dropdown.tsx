@@ -1,4 +1,4 @@
-import { signOutAction } from '@/app/actions';
+import { signOutAction } from '@/app/actions/session';
 import {
   DropdownMenu,
   DropdownMenuContent,
