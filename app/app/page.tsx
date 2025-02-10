@@ -295,21 +295,27 @@ export default function Player() {
           </div>
         </nav>
         <div className='flex-1 w-full z-10'>
-          <div className='flex-1 w-full flex flex-col gap-2 mt-4 relative'>
-            {/* Add left gradient overlay */}
-            <div className='absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-20' />
+          {!tracks.length ? (
+            <div className='flex-1 flex h-[600px] items-center justify-center'>
+              <p className=' text-gray-500'>No tracks found</p>
+            </div>
+          ) : (
+            <div className='flex-1 w-full flex flex-col gap-2 mt-4 relative'>
+              {/* Add left gradient overlay */}
+              <div className='absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-20' />
 
-            <TrackCarousel
-              tracks={tracks}
-              currentIndex={currentIndex}
-              setCurrentIndex={handleTrackChange}
-            />
+              <TrackCarousel
+                tracks={tracks}
+                currentIndex={currentIndex}
+                setCurrentIndex={handleTrackChange}
+              />
 
-            {/* Add right gradient overlay */}
-            <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
+              {/* Add right gradient overlay */}
+              <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
 
-            <PlayerControls items={controls} />
-          </div>
+              <PlayerControls items={controls} />
+            </div>
+          )}
         </div>
 
         {/* 

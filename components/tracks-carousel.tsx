@@ -53,21 +53,27 @@ const TrackCarousel = ({
 
   return (
     <div className='relative h-[600px] w-full overflow-hidden'>
-      <div className='absolute inset-0 flex items-center justify-center'>
-        {getVisibleTracks().map((index) => (
-          <div
-            key={`${tracks[index].id}-${index}`}
-            className='absolute transition-all duration-300 ease-in-out cursor-pointer'
-            style={getCardStyle(index)}
-            onClick={() => setCurrentIndex(index)}
-          >
-            <TrackCard
-              track={tracks[index]}
-              isCurrent={index === currentIndex}
-            />
-          </div>
-        ))}
-      </div>
+      {tracks.length === 0 ? (
+        <div className='flex h-full items-center justify-center'>
+          <p className=' text-gray-500'>No tracks found</p>
+        </div>
+      ) : (
+        <div className='absolute inset-0 flex items-center justify-center'>
+          {getVisibleTracks().map((index) => (
+            <div
+              key={`${tracks[index].id}-${index}`}
+              className='absolute transition-all duration-300 ease-in-out cursor-pointer'
+              style={getCardStyle(index)}
+              onClick={() => setCurrentIndex(index)}
+            >
+              <TrackCard
+                track={tracks[index]}
+                isCurrent={index === currentIndex}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
