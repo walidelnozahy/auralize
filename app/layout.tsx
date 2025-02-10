@@ -1,9 +1,5 @@
-import DeployButton from '@/components/deploy-button';
-import HeaderAuth from '@/components/user-dropdown';
-import { ThemeSwitcher } from '@/components/theme-switcher';
 import { Geist } from 'next/font/google';
 import { ThemeProvider } from 'next-themes';
-import Link from 'next/link';
 import './globals.css';
 
 const defaultUrl = process.env.VERCEL_URL
@@ -35,36 +31,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <main className='min-h-screen flex flex-col items-center'>
-            <div className='flex-1 w-full flex flex-col items-center'>
-              <nav className='w-full flex justify-center border-b border-b-foreground/10 h-16'>
-                <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
-                  <Link href={'/'} className='font-semibold'>
-                    Auralize
-                  </Link>
-                  <div className='flex items-center gap-2'>
-                    <ThemeSwitcher />
-                    <HeaderAuth />
-                  </div>
-                </div>
-              </nav>
-              <div className='flex-1 flex flex-col gap-20 max-w-5xl p-5 w-full'>
-                {children}
-              </div>
-
-              <footer className='w-full border-t'>
-                <div className='max-w-5xl mx-auto py-8 px-5 text-center text-xs flex items-center justify-center gap-2'>
-                  <p className='text-muted-foreground'>
-                    Built with ❤️ by{' '}
-                    <a href='https://github.com/walidelnozahy'>
-                      Walid Elnozahy
-                    </a>
-                  </p>
-                  <DeployButton />
-                </div>
-              </footer>
-            </div>
-          </main>
+          {children}
         </ThemeProvider>
       </body>
     </html>

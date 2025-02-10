@@ -1,78 +1,100 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Laptop, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { Monitor, Moon, Sun } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
-const ThemeSwitcher = () => {
-  const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+type Theme = 'system' | 'light' | 'dark';
+type Size = 'sm' | 'md' | 'lg';
 
-  // useEffect only runs on the client, so now we can safely show the UI
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+interface ThemeSwitcherProps {
+  size?: Size;
+}
 
-  if (!mounted) {
-    return null;
-  }
-
-  const ICON_SIZE = 16;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size={"sm"}>
-          {theme === "light" ? (
-            <Sun
-              key="light"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
-            />
-          ) : theme === "dark" ? (
-            <Moon
-              key="dark"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
-            />
-          ) : (
-            <Laptop
-              key="system"
-              size={ICON_SIZE}
-              className={"text-muted-foreground"}
-            />
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-content" align="start">
-        <DropdownMenuRadioGroup
-          value={theme}
-          onValueChange={(e) => setTheme(e)}
-        >
-          <DropdownMenuRadioItem className="flex gap-2" value="light">
-            <Sun size={ICON_SIZE} className="text-muted-foreground" />{" "}
-            <span>Light</span>
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem className="flex gap-2" value="dark">
-            <Moon size={ICON_SIZE} className="text-muted-foreground" />{" "}
-            <span>Dark</span>
-          </DropdownMenuRadioItem>
-          <DropdownMenuRadioItem className="flex gap-2" value="system">
-            <Laptop size={ICON_SIZE} className="text-muted-foreground" />{" "}
-            <span>System</span>
-          </DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
+const sizeClasses = {
+  sm: {
+    button: 'h-6 w-6',
+    icon: 'h-3 w-3',
+    wrapper: 'p-1 gap-1',
+  },
+  md: {
+    button: 'h-8 w-8',
+    icon: 'h-4 w-4',
+    wrapper: 'p-1 gap-2',
+  },
+  lg: {
+    button: 'h-10 w-10',
+    icon: 'h-5 w-5',
+    wrapper: 'p-1.5 gap-2',
+  },
 };
 
-export { ThemeSwitcher };
+export default function ThemeSwitcher({ size = 'md' }: ThemeSwitcherProps) {
+  const [theme, setTheme] = useState<Theme>('system');
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedTheme = localStorage.getItem('theme') as Theme;
+    if (savedTheme) {
+      setTheme(savedTheme);
+      applyTheme(savedTheme);
+    }
+  }, []);
+
+  const applyTheme = (newTheme: Theme) => {
+    const root = document.documentElement;
+    root.classList.remove('light', 'dark');
+
+    if (newTheme === 'system') {
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)')
+        .matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
+    } else {
+      root.classList.add(newTheme);
+    }
+  };
+
+  const updateTheme = (newTheme: Theme) => {
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    applyTheme(newTheme);
+  };
+
+  if (!mounted) return null;
+
+  return (
+    <div
+      className={`inline-flex items-center rounded-full border bg-background ${sizeClasses[size].wrapper}`}
+    >
+      <button
+        onClick={() => updateTheme('system')}
+        className={`inline-flex items-center justify-center rounded-full transition-colors hover:bg-accent ${
+          theme === 'system' ? 'bg-accent' : ''
+        } ${sizeClasses[size].button}`}
+        aria-label='System theme'
+      >
+        <Monitor className={sizeClasses[size].icon} />
+      </button>
+      <button
+        onClick={() => updateTheme('light')}
+        className={`inline-flex items-center justify-center rounded-full transition-colors hover:bg-accent ${
+          theme === 'light' ? 'bg-accent' : ''
+        } ${sizeClasses[size].button}`}
+        aria-label='Light theme'
+      >
+        <Sun className={sizeClasses[size].icon} />
+      </button>
+      <button
+        onClick={() => updateTheme('dark')}
+        className={`inline-flex items-center justify-center rounded-full transition-colors hover:bg-accent ${
+          theme === 'dark' ? 'bg-accent' : ''
+        } ${sizeClasses[size].button}`}
+        aria-label='Dark theme'
+      >
+        <Moon className={sizeClasses[size].icon} />
+      </button>
+    </div>
+  );
+}

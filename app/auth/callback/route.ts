@@ -28,5 +28,5 @@ export async function GET(request: Request) {
     console.log('Stored Spotify tokens successfully via Server Component.');
   }
 
-  return NextResponse.redirect(`${origin}/protected`);
+  return NextResponse.redirect(`${origin}/app`);
 }

@@ -49,8 +49,6 @@ export const updateSession = async (request: NextRequest) => {
       error: sessionError,
     } = await supabase.auth.getSession();
     const error = userError || sessionError;
-    console.log('Session Data:', session);
-    console.log('User Data:', user);
 
     // 🚀 Store Spotify tokens in cookies if available
     const providerToken = session?.provider_token;
@@ -72,7 +70,7 @@ export const updateSession = async (request: NextRequest) => {
     }
 
     // 🚀 Protected Routes: Redirect if user is not authenticated
-    if (request.nextUrl.pathname.startsWith('/protected') && !!error) {
+    if (request.nextUrl.pathname.startsWith('/app') && !!error) {
       return NextResponse.redirect(
         new URL('/auth/auth-code-error', request.url),
       );
@@ -84,7 +82,7 @@ export const updateSession = async (request: NextRequest) => {
         request.nextUrl.pathname.startsWith('/auth')) &&
       !!user
     ) {
-      return NextResponse.redirect(new URL('/protected', request.url));
+      return NextResponse.redirect(new URL('/app', request.url));
     }
 
     return response;
