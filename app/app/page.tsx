@@ -317,16 +317,6 @@ export default function Player() {
             </div>
           )}
         </div>
-
-        {/* 
-        <footer className='w-full'>
-          <div className='max-w-5xl mx-auto py-2 px-5 text-center text-xs flex items-center justify-center gap-2'>
-            <p className='text-muted-foreground'>
-              Built with ❤️ by{' '}
-              <a href='https://github.com/walidelnozahy'>Walid Elnozahy</a>
-            </p>
-          </div>
-        </footer> */}
       </div>
     </main>
   );
