@@ -12,7 +12,7 @@ export async function PUT(request: Request) {
       'PUT',
       { uris },
     );
-    console.log('resultresult', result);
+
     if (!result.ok) {
       throw new Error('Failed to start playback');
     }

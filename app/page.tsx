@@ -3,14 +3,12 @@
 import { signInWithSpotifyAction } from './actions/session';
 import { Spotlight } from '@/components/ui/spotlight-new';
 import { CursorGlow } from '@/components/cursor-glow';
-import { ThreeBackground } from '@/components/three-background';
 import { StarBorder } from '@/components/star-border';
 import Link from 'next/link';
 
 export default function Home() {
   return (
     <main className='min-h-screen flex items-center justify-center p-4 bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden'>
-      <ThreeBackground />
       <CursorGlow />
       <Spotlight />
       <div className='flex flex-col gap-8 items-center max-w-3xl mx-auto text-center relative z-10'>
@@ -18,12 +16,12 @@ export default function Home() {
           <h1 className='text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-b from-neutral-50 to-neutral-400'>
             Auralize
           </h1>
-          <p className='mt-4 font-normal text-base bg-clip-text text-transparent bg-gradient-to-b from-neutral-400 to-neutral-600 max-w-lg text-center mx-auto'>
+          <p className='text-lg mt-4 font-normal text-base bg-clip-text text-transparent bg-gradient-to-b from-neutral-400 to-neutral-600 max-w-lg text-center mx-auto'>
             Bring Your Music to Life
           </p>
         </div>
         <div className='flex flex-col gap-4 animate-fade-in-up [animation-delay:400ms] opacity-0 [animation-fill-mode:forwards]'>
-          <StarBorder onClick={signInWithSpotifyAction}>
+          <StarBorder onClick={() => signInWithSpotifyAction()}>
             <svg
               xmlns='http://www.w3.org/2000/svg'
               width='24'

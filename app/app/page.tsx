@@ -1,25 +1,18 @@
 'use client';
 
 import TrackCarousel from '@/components/tracks-carousel';
-import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import SignOutButton from '@/components/sign-out-button';
-import { extractColors } from 'extract-colors';
-import AudioVisualizer from '../../components/audio-visualizer';
-import {
-  AudioLines,
-  AudioWaveform,
-  Pause,
-  Play,
-  SkipBack,
-  SkipForward,
-  Volume2,
-} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import debounce from 'lodash/debounce';
+import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import { PlayerControls } from '../../components/player-controls';
 import { CursorGlow } from '@/components/cursor-glow';
 import { Spinner } from '@/components/spinner';
-import { useLikedTracks } from '../hooks/useLikedTracks';
+import { useLikedTracks } from '../hooks/use-liked-tracks';
 import { RadialGlow } from '@/components/radial-glow';
+import { OrganicSphere } from '@/components/sphere';
+import { useExtractedColors } from '../hooks/use-extracted-colors';
 
 declare global {
   interface Window {
@@ -29,14 +22,16 @@ declare global {
 }
 
 export default function Player() {
-  const { tracks, loading } = useLikedTracks();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { tracks, loading, isPaginationLoading } = useLikedTracks(currentIndex);
   const [isLoadingPlay, setIsLoadingPlay] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<any>(null);
   const [deviceId, setDeviceId] = useState<string>('');
-  const [error, setError] = useState<string | null>(null);
-
+  const { toast } = useToast();
+  const { gradientColors } = useExtractedColors(
+    tracks[currentIndex]?.album?.images[0]?.url,
+  );
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const script = document.createElement('script');
@@ -52,13 +47,14 @@ export default function Player() {
             const res = await fetch('/api/spotify/get-token');
             const data = await res.json();
             const accessToken = data.accessToken;
-            if (accessToken) {
-              cb(accessToken);
-            } else {
-              throw new Error('No Spotify access token found');
-            }
+
+            cb(accessToken);
           } catch (error) {
-            setError('Failed to get Spotify access token');
+            toast({
+              title: 'Authentication Error',
+              description: 'Failed to get Spotify access token',
+              variant: 'destructive',
+            });
             console.error(error);
           }
         },
@@ -102,21 +98,22 @@ export default function Player() {
       player.addListener(
         'initialization_error',
         ({ message }: { message: string }) => {
-          setError(`Initialization error: ${message}`);
-        },
-      );
-
-      player.addListener(
-        'authentication_error',
-        ({ message }: { message: string }) => {
-          setError(`Authentication error: ${message}`);
+          toast({
+            title: 'Initialization Error',
+            description: message,
+            variant: 'destructive',
+          });
         },
       );
 
       player.addListener(
         'account_error',
         ({ message }: { message: string }) => {
-          setError(`Account error: ${message}`);
+          toast({
+            title: 'Account Error',
+            description: message,
+            variant: 'destructive',
+          });
         },
       );
 
@@ -131,107 +128,90 @@ export default function Player() {
       document.body.removeChild(script);
     };
   }, []);
-  // useEffect(() => {
-  //   if (!player) return;
 
-  //   const updateEnergy = async () => {
-  //     const state = await player.getCurrentState();
-  //     if (!state) {
-  //       console.warn('⚠️ No state received from Spotify player.');
-  //       return;
-  //     }
+  // Create a debounced version of playTrack
+  const debouncedPlayTrack = useCallback(
+    debounce(async (newIndex: number) => {
+      if (!deviceId || !tracks[newIndex]) return;
 
-  //     setIsPlaying(!state.paused);
+      try {
+        setIsLoadingPlay(true);
+        const res = await fetch('/api/spotify/play', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            device_id: deviceId,
+            uris: [tracks[newIndex].uri],
+          }),
+        });
 
-  //     if (state.paused) {
-  //       console.log('⏸️ Music is paused, setting energy to 0.');
-
-  //       return;
-  //     }
-
-  //     const { position, duration, playback_speed } = state;
-  //     console.log('state', state);
-  //     if (!duration || duration === 0) {
-  //       console.warn('⚠️ Invalid track duration:', duration);
-  //       return;
-  //     }
-
-  //     // Normalize track progress (0 to 1)
-  //     const progressRatio = position / duration;
-
-  //     // Estimate beat oscillation (sin wave based on track progress)
-  //     const estimatedBeat = Math.sin(progressRatio * Math.PI * playback_speed);
-
-  //     // Ensure energy is within a valid range
-  //     const estimatedIntensity = Math.max(
-  //       0,
-  //       Math.min(1, (estimatedBeat + 1) * 0.5),
-  //     );
-
-  //     console.log('🎶 Updated Energy:', estimatedIntensity);
-  //     setEnergy(estimatedIntensity);
-  //   };
-
-  //   // Run every second ONLY when music is playing
-  //   const interval = setInterval(updateEnergy, 1000);
-
-  //   return () => clearInterval(interval);
-  // }, [player, isPlaying]);
-
-  const playTrack = async (newIndex: number) => {
-    if (!deviceId || !tracks[newIndex]) return;
-
-    try {
-      setIsLoadingPlay(true);
-      const res = await fetch('/api/spotify/play', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          device_id: deviceId,
-          uris: [tracks[newIndex].uri],
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to start playback');
+        if (!res.ok) {
+          throw new Error('Failed to start playback');
+        }
+      } catch (error) {
+        console.error('Error playing track:', error);
+        toast({
+          title: 'Playback Error',
+          description: 'Failed to play track',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoadingPlay(false);
       }
-    } catch (error) {
-      console.error('Error playing track:', error);
-      setError('Failed to play track');
-    } finally {
-      setIsLoadingPlay(false);
-    }
+    }, 300), // 300ms delay
+    [deviceId, tracks, toast],
+  );
+
+  // Update handleTrackChange to use debounced playTrack
+  const handleTrackChange = async (newIndex: number) => {
+    setCurrentIndex(newIndex);
+    await debouncedPlayTrack(newIndex);
   };
 
+  // Update nextTrack to use debounced playTrack
   const nextTrack = async () => {
     if (!player || currentIndex >= tracks.length - 1) return;
 
     try {
       const newIndex = currentIndex + 1;
       setCurrentIndex(newIndex);
-      // Always start fresh playback for the new track
-      await playTrack(newIndex);
+      await debouncedPlayTrack(newIndex);
     } catch (error) {
       console.error('Error skipping to next track:', error);
-      setError('Failed to skip to next track');
+      toast({
+        title: 'Playback Error',
+        description: 'Failed to skip to next track',
+        variant: 'destructive',
+      });
     }
   };
 
+  // Update prevTrack to use debounced playTrack
   const prevTrack = async () => {
     if (!player || currentIndex <= 0) return;
 
     try {
       const newIndex = currentIndex - 1;
       setCurrentIndex(newIndex);
-      // Always start fresh playback for the new track
-      await playTrack(newIndex);
+      await debouncedPlayTrack(newIndex);
     } catch (error) {
       console.error('Error going to previous track:', error);
-      setError('Failed to go to previous track');
+      toast({
+        title: 'Playback Error',
+        description: 'Failed to go to previous track',
+        variant: 'destructive',
+      });
     }
   };
+
+  // Clean up debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedPlayTrack.cancel();
+    };
+  }, [debouncedPlayTrack]);
 
   const togglePlayPause = async () => {
     if (!player) return;
@@ -243,7 +223,7 @@ export default function Player() {
 
       if (!state) {
         // If no state, we need to start fresh playback
-        await playTrack(currentIndex);
+        await debouncedPlayTrack(currentIndex);
         return;
       }
 
@@ -252,7 +232,11 @@ export default function Player() {
       // Revert the optimistic update if there's an error
       setIsPlaying(isPlaying);
       console.error('Error toggling playback:', error);
-      setError('Failed to toggle playback');
+      toast({
+        title: 'Playback Error',
+        description: 'Failed to toggle playback',
+        variant: 'destructive',
+      });
     }
   };
   const controls = [
@@ -265,13 +249,14 @@ export default function Player() {
     },
     {
       title: isPlaying ? 'Pause' : 'Play',
-      icon: isLoadingPlay ? (
-        <Spinner className='h-full w-full text-neutral-500 dark:text-neutral-300' />
-      ) : isPlaying ? (
-        <Pause className='h-full w-full text-neutral-500 dark:text-neutral-300' />
-      ) : (
-        <Play className='h-full w-full text-neutral-500 dark:text-neutral-300' />
-      ),
+      icon:
+        isLoadingPlay || isPaginationLoading ? (
+          <Spinner className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+        ) : isPlaying ? (
+          <Pause className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+        ) : (
+          <Play className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+        ),
 
       onClick: togglePlayPause,
     },
@@ -287,9 +272,8 @@ export default function Player() {
   if (loading)
     return (
       <main className='flex min-h-screen flex-col items-center justify-center bg-background relative'>
-        <div className='absolute inset-0 overflow-hidden'>
-          <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-foreground/5 to-transparent blur-2xl' />
-        </div>
+        <RadialGlow gradientColors={gradientColors} />
+        <CursorGlow />
         <Spinner
           size={48}
           className='text-foreground animate-fade-in relative'
@@ -297,17 +281,10 @@ export default function Player() {
       </main>
     );
 
-  if (error) {
-    return (
-      <div className='flex min-h-screen items-center justify-center'>
-        <p className='text-red-500'>{error}</p>
-      </div>
-    );
-  }
-
   return (
-    <main className=' flex flex-col items-center relative min-h-screen'>
-      <RadialGlow url={tracks[currentIndex]?.album?.images[0]?.url} />
+    <main className='flex flex-col items-center relative min-h-screen'>
+      <OrganicSphere isPlaying={isPlaying} gradientColors={gradientColors} />
+      <RadialGlow gradientColors={gradientColors} />
       <CursorGlow />
       {/* <AudioVisualizer isPlaying={isPlaying} /> */}
       <div className='flex-1 w-full flex flex-col items-center animate-fade-in-up relative'>
@@ -325,10 +302,7 @@ export default function Player() {
             <TrackCarousel
               tracks={tracks}
               currentIndex={currentIndex}
-              setCurrentIndex={async (newIndex) => {
-                setCurrentIndex(newIndex);
-                await playTrack(newIndex);
-              }}
+              setCurrentIndex={handleTrackChange}
             />
 
             {/* Add right gradient overlay */}

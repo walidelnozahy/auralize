@@ -8,7 +8,11 @@ import { useEffect, useState } from 'react';
 
 export default function EmailConfirmed() {
   useEffect(() => {
-    signInWithSpotifyAction();
+    const timer = setTimeout(() => {
+      signInWithSpotifyAction();
+    }, 1500); // 1.5 second delay
+
+    return () => clearTimeout(timer);
   }, []);
 
   return (

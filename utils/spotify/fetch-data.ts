@@ -26,7 +26,7 @@ export const fetchSpotifyData = async (
       body: JSON.stringify(body),
     });
   }
-  console.log('response22222', response);
+
   if (!response.ok) {
     const error = await response.json();
     throw new Error(

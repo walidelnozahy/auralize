@@ -6,7 +6,11 @@ import { LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export default function SignOutButton() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<{
+    user_metadata: {
+      name: string;
+    };
+  } | null>(null);
 
   useEffect(() => {
     const fetchUserInfo = async () => {
@@ -28,7 +32,7 @@ export default function SignOutButton() {
   if (!user) return null;
 
   return (
-    <div className='flex items-center gap-2'>
+    <div className='flex items-center gap-2  animate-fade-in-up'>
       <p className='text-sm  leading-none'>
         {user.user_metadata.name?.split(' ')[0] || user.user_metadata.name}
       </p>
@@ -36,10 +40,10 @@ export default function SignOutButton() {
         type='submit'
         variant='ghost'
         size='sm'
-        className='text-smw-full justify-start cursor-pointer'
+        // className='text-smw-full justify-start cursor-pointer'
         onClick={signOutAction}
       >
-        <LogOut className='mr-2 h-4 w-4' />
+        <LogOut className='h-4 w-4' />
       </Button>
     </div>
   );
