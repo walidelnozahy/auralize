@@ -395,15 +395,12 @@ export default function Player() {
                 isLoadingImage={isLoadingImage}
                 generateImage={generateImage}
               />
-              {/* Add right gradient overlay */}
-              <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
               {isLoadingImage && (
-                <div className='relative inset-0 flex-1 flex items-center justify-center'>
+                <div className='absolute bottom-20 left-0 right-0 flex items-center justify-center'>
                   <AudioWave className='w-12 h-12 text-white' />
                   <p className='text-white/80 text-sm'>Bringing to life...</p>
                 </div>
               )}
-
               <PlayerControls
                 promptSettings={promptSettings}
                 items={controls}

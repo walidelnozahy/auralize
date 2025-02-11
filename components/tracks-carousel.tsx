@@ -3,6 +3,7 @@
 import React from 'react';
 import TrackCard from './track-card';
 import { TrackCarouselProps } from '@/lib/types';
+import AudioWave from './audio-wave';
 
 const TrackCarousel = ({
   tracks,
@@ -55,7 +56,7 @@ const TrackCarousel = ({
   };
 
   return (
-    <div className='relative h-[500px] w-full overflow-hidden'>
+    <div className='relative h-[600px] w-full overflow-hidden'>
       {tracks.length === 0 ? (
         <div className='flex h-full items-center justify-center'>
           <p className=' text-gray-500'>No tracks found</p>
@@ -82,6 +83,8 @@ const TrackCarousel = ({
           ))}
         </div>
       )}
+      {/* Add right gradient overlay */}
+      <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
     </div>
   );
 };
