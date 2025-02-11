@@ -1,70 +1,12 @@
-const styles = [
-  'Cyberpunk',
-  'Fantasy',
-  'Surrealism',
-  'Watercolor',
-  'Anime',
-  'Impressionism',
-  'Futuristic',
-  'Dark Gothic',
-  'Minimalist',
-  'Dreamy',
-  'Abstract',
-];
+import { getRandom, moods } from './prompt-options';
+import {
+  colorSchemes,
+  genres,
+  lightingOptions,
+  scenes,
+} from './prompt-options';
+import { styles } from './prompt-options';
 
-const moods = [
-  'Energetic',
-  'Chill',
-  'Melancholic',
-  'Happy',
-  'Dark',
-  'Mystical',
-  'Trippy',
-];
-
-const scenes = [
-  'A neon-lit futuristic city with flying cars',
-  'A misty enchanted forest with glowing trees',
-  'A vast cosmic landscape with swirling galaxies',
-  'An underwater kingdom with bioluminescent creatures',
-  'A cyberpunk street with holographic billboards',
-  'An ancient temple surrounded by golden light',
-  'A post-apocalyptic wasteland with ruins',
-];
-
-const genres = [
-  'Rock',
-  'Jazz',
-  'Synthwave',
-  'Classical',
-  'EDM',
-  'Lo-Fi',
-  'Hip-Hop',
-  'Orchestral',
-];
-
-const colorSchemes = [
-  'Vibrant neon',
-  'Pastel tones',
-  'Dark moody',
-  'Golden sunset',
-  'Black and white',
-  'Retro 80s',
-  'Monochrome',
-];
-
-const lightingOptions = [
-  'Cinematic lighting',
-  'Soft glow',
-  'Harsh shadows',
-  'Ethereal light rays',
-  'Volumetric fog',
-  'Sunset glow',
-  'Dreamy haze',
-];
-function getRandom<T>(arr: T[]): T {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
 export function generatePrompt({
   songName,
   artist,

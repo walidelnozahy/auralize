@@ -13,8 +13,8 @@ const TrackCard = ({
   currentIndex,
   isCurrent,
   tracksArt,
-  isLoadingImage,
-  generateImage,
+  // isLoadingImage,
+  // generateImage,
 }: TrackCardProps) => {
   if (isCurrent) {
     return (
@@ -52,7 +52,7 @@ const TrackCard = ({
                       <Wand2 className='h-4 w-4 mr-2' />
                       Reimagine
                     </Button> */}
-                    {/* {tracksArt?.[track.id]?.imageUrl && (
+                    {tracksArt?.[track.id]?.imageUrl && (
                       <div className='flex justify-center gap-2 mt-4'>
                         <Button variant='secondary' size='icon'>
                           <Download className='h-4 w-4' />
@@ -62,18 +62,10 @@ const TrackCard = ({
                           <Share2 className='h-4 w-4' />
                         </Button>
                       </div>
-                    )} */}
+                    )}
                   </div>
                 </div>
               </div>
-              {isLoadingImage && (
-                <div className='absolute inset-0 bg-black/80 flex flex-col items-center justify-center'>
-                  <AudioWave className='w-12 h-12 text-white' />
-                  <p className='text-white/80 text-sm mt-2'>
-                    Bringing to life...
-                  </p>
-                </div>
-              )}
             </div>
           </CardBody>
         </BackgroundGradient>

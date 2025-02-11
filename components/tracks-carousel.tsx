@@ -55,7 +55,7 @@ const TrackCarousel = ({
   };
 
   return (
-    <div className='relative h-[600px] w-full overflow-hidden'>
+    <div className='relative h-[500px] w-full overflow-hidden'>
       {tracks.length === 0 ? (
         <div className='flex h-full items-center justify-center'>
           <p className=' text-gray-500'>No tracks found</p>

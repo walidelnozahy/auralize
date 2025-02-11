@@ -3,7 +3,6 @@ import { openai } from '@/lib/openai/client'; // Import OpenAI instance
 import { generateArtPrompt } from '@/lib/openai/generate-art-prompt';
 import { uploadImageFromUrl } from '@/lib/supabase/upload-image';
 import { saveGeneratedImage } from '@/lib/supabase/store-image-record';
-import { generatePublicUrl } from '@/lib/supabase/generate-image-public-url';
 import { getPublicUrl } from '@/lib/supabase/get-image-from-path';
 
 export async function POST(req: Request) {

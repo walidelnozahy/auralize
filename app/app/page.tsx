@@ -4,7 +4,14 @@ import TrackCarousel from '@/components/tracks-carousel';
 import { useEffect, useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import debounce from 'lodash/debounce';
-import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
+import {
+  AudioLines,
+  Pause,
+  Play,
+  SkipBack,
+  SkipForward,
+  SlidersHorizontal,
+} from 'lucide-react';
 import { PlayerControls } from '../../components/player-controls';
 import { CursorGlow } from '@/components/cursor-glow';
 import { useLikedTracks } from '../hooks/use-liked-tracks';
@@ -15,6 +22,14 @@ import AudioWave from '@/components/audio-wave';
 import { ListImages } from '@/components/list-images';
 import { useImages } from '../hooks/use-images';
 import { generatePublicUrl } from '@/lib/supabase/generate-image-public-url';
+import {
+  colorSchemes,
+  genres,
+  getRandom,
+  lightingOptions,
+  moods,
+  scenes,
+} from '@/lib/prompt-options';
 
 declare global {
   interface Window {
@@ -30,6 +45,13 @@ export default function Player() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<any>(null);
   const [deviceId, setDeviceId] = useState<string>('');
+  const [promptSettings, setPromptSettings] = useState({
+    mood: getRandom(moods),
+    scene: getRandom(scenes),
+    genre: getRandom(genres),
+    colorScheme: getRandom(colorSchemes),
+    lightingOption: getRandom(lightingOptions),
+  });
   const { toast } = useToast();
   const { images, isLoading: isLoadingImages, refresh } = useImages();
   const { gradientColors } = useExtractedColors(
@@ -318,6 +340,18 @@ export default function Player() {
       ),
       onClick: nextTrack,
     },
+    {
+      title: 'Settings',
+      icon: (
+        <SlidersHorizontal className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+      ),
+      onClick: (category: string) => (value: string) => {
+        setPromptSettings((prev) => ({
+          ...prev,
+          [category]: value,
+        }));
+      },
+    },
   ];
 
   if (loading)
@@ -345,7 +379,7 @@ export default function Player() {
         </nav>
         <div className='flex-1 w-full z-10'>
           {!tracks.length ? (
-            <div className='flex-1 flex h-[600px] items-center justify-center'>
+            <div className='flex-1 flex h-[500px] items-center justify-center'>
               <p className=' text-gray-500'>No tracks found</p>
             </div>
           ) : (
@@ -361,11 +395,19 @@ export default function Player() {
                 isLoadingImage={isLoadingImage}
                 generateImage={generateImage}
               />
-
               {/* Add right gradient overlay */}
               <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
+              {isLoadingImage && (
+                <div className='relative inset-0 flex-1 flex items-center justify-center'>
+                  <AudioWave className='w-12 h-12 text-white' />
+                  <p className='text-white/80 text-sm'>Bringing to life...</p>
+                </div>
+              )}
 
-              <PlayerControls items={controls} />
+              <PlayerControls
+                promptSettings={promptSettings}
+                items={controls}
+              />
             </div>
           )}
         </div>
