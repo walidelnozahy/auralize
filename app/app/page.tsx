@@ -93,6 +93,14 @@ export default function Player() {
         if (newIndex !== -1 && newIndex !== currentIndex) {
           setCurrentIndex(newIndex);
         }
+
+        // Check if the track has ended and play the next track
+        if (state.paused && state.position === 0) {
+          // Only proceed if we're not at the last track
+          if (currentIndex < tracks.length - 1) {
+            nextTrack();
+          }
+        }
       });
 
       player.addListener(
