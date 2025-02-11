@@ -2,12 +2,15 @@
 
 import React from 'react';
 import TrackCard from './track-card';
-import { TrackCarouselProps } from '@/utils/types';
+import { TrackCarouselProps } from '@/lib/types';
 
 const TrackCarousel = ({
   tracks,
   currentIndex,
   setCurrentIndex,
+  tracksArt,
+  isLoadingImage,
+  generateImage,
 }: TrackCarouselProps) => {
   const getCardStyle = (index: number) => {
     const diff = index - currentIndex;
@@ -62,13 +65,18 @@ const TrackCarousel = ({
           {getVisibleTracks().map((index) => (
             <div
               key={`${tracks[index].id}-${index}`}
-              className='absolute transition-all duration-300 ease-in-out cursor-pointer'
+              className='absolute transition-all duration-300 ease-in-out '
               style={getCardStyle(index)}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => setCurrentIndex(currentIndex)}
             >
               <TrackCard
+                setCurrentIndex={setCurrentIndex}
                 track={tracks[index]}
+                currentIndex={currentIndex}
                 isCurrent={index === currentIndex}
+                tracksArt={tracksArt}
+                isLoadingImage={isLoadingImage}
+                generateImage={generateImage}
               />
             </div>
           ))}

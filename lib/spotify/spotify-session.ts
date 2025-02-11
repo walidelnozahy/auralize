@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { storeSpotifyTokens } from '@/utils/supabase/server';
+import { storeSpotifyTokens } from '@/lib/supabase/server';
 import { SPOTIFY_ACCESS_TOKEN, SPOTIFY_REFRESH_TOKEN } from './constants';
 
 export const refreshSpotifyAccessToken = async () => {

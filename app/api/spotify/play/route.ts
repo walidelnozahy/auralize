@@ -1,5 +1,5 @@
 // app/api/spotify/play/route.ts
-import { fetchSpotifyData } from '@/utils/spotify/fetch-data';
+import { fetchSpotifyData } from '@/lib/spotify/fetch-data';
 import { NextResponse } from 'next/server';
 
 export async function PUT(request: Request) {

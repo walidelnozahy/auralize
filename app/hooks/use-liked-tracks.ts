@@ -1,4 +1,4 @@
-import { SpotifyTrack, Track } from '@/utils/types';
+import { SpotifyTrack, Track } from '@/lib/types';
 import { useState, useEffect } from 'react';
 
 export function useLikedTracks(currentIndex: number) {

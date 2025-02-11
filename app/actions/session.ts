@@ -3,8 +3,8 @@
 import {
   SPOTIFY_ACCESS_TOKEN,
   SPOTIFY_REFRESH_TOKEN,
-} from '@/utils/spotify/constants';
-import { createClient } from '@/utils/supabase/server';
+} from '@/lib/spotify/constants';
+import { createClient } from '@/lib/supabase/server';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
@@ -21,7 +21,7 @@ export const signInWithSpotifyAction = async (
     'user-read-playback-state', // Get playback state (needed for player controls)
   ].join(' '); // Join scopes as a space-separated string
 
-  const { error, data } = await supabase.auth.signInWithOAuth({
+  const { data } = await supabase.auth.signInWithOAuth({
     provider: 'spotify',
     options: {
       redirectTo: `${origin}${redirectTo}`,

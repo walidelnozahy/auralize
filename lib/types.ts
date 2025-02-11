@@ -38,9 +38,17 @@ export interface TrackCarouselProps {
   tracks: Track[];
   currentIndex: number;
   setCurrentIndex: (index: number) => void;
+  tracksArt: { [key: string]: { imageUrl: string } };
+  isLoadingImage: boolean;
+  generateImage: () => void;
 }
 
 export interface TrackCardProps {
   track: Track;
+  currentIndex: number;
+  tracksArt: { [key: string]: { imageUrl: string } };
+  isLoadingImage: boolean;
+  generateImage: () => void;
+  setCurrentIndex: (index: number) => void;
   isCurrent: boolean;
 }

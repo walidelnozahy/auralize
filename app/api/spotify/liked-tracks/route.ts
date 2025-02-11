@@ -1,4 +1,4 @@
-import { fetchSpotifyData } from '@/utils/spotify/fetch-data';
+import { fetchSpotifyData } from '@/lib/spotify/fetch-data';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(request: NextRequest) {

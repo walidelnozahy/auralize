@@ -2,7 +2,6 @@
 
 import TrackCarousel from '@/components/tracks-carousel';
 import { useEffect, useState, useCallback } from 'react';
-import SignOutButton from '@/components/sign-out-button';
 import { useToast } from '@/hooks/use-toast';
 import debounce from 'lodash/debounce';
 import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
@@ -13,6 +12,9 @@ import { RadialGlow } from '@/components/radial-glow';
 import { OrganicSphere } from '@/components/sphere';
 import { useExtractedColors } from '../hooks/use-extracted-colors';
 import AudioWave from '@/components/audio-wave';
+import { ListImages } from '@/components/list-images';
+import { useImages } from '../hooks/use-images';
+import { generatePublicUrl } from '@/lib/supabase/generate-image-public-url';
 
 declare global {
   interface Window {
@@ -29,9 +31,58 @@ export default function Player() {
   const [player, setPlayer] = useState<any>(null);
   const [deviceId, setDeviceId] = useState<string>('');
   const { toast } = useToast();
+  const { images, isLoading: isLoadingImages, refresh } = useImages();
   const { gradientColors } = useExtractedColors(
     tracks[currentIndex]?.album?.images[0]?.url,
   );
+
+  const [tracksArt, setTracksArt] = useState<{
+    [key: string]: { imageUrl: string };
+  }>({});
+  const [isLoadingImage, setIsLoadingImage] = useState(false);
+
+  const generateImage = async () => {
+    setIsLoadingImage(true);
+    if (!tracks[currentIndex]) return;
+    try {
+      const response = await fetch('/api/generate-image', {
+        method: 'POST',
+        body: JSON.stringify({
+          trackId: tracks[currentIndex].id,
+          song: tracks[currentIndex].name,
+          artist: tracks[currentIndex].artists[0].name,
+          imageUrl: tracks[currentIndex].album.images[0].url,
+          extractedColors: gradientColors,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate image');
+      }
+
+      const imageUrl = await response.json();
+      setTracksArt((prev) => ({
+        ...prev,
+        [tracks[currentIndex].id]: {
+          ...tracks[currentIndex].album.images[0],
+          imageUrl,
+        },
+      }));
+      refresh();
+    } catch (error) {
+      console.error('Error generating image:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to generate artwork',
+      });
+    } finally {
+      setIsLoadingImage(false);
+    }
+  };
+  useEffect(() => {
+    generateImage();
+  }, [tracks[currentIndex]]);
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const script = document.createElement('script');
@@ -92,14 +143,6 @@ export default function Player() {
         );
         if (newIndex !== -1 && newIndex !== currentIndex) {
           setCurrentIndex(newIndex);
-        }
-
-        // Check if the track has ended and play the next track
-        if (state.paused && state.position === 0) {
-          // Only proceed if we're not at the last track
-          if (currentIndex < tracks.length - 1) {
-            nextTrack();
-          }
         }
       });
 
@@ -288,15 +331,16 @@ export default function Player() {
 
   return (
     <main className='flex flex-col items-center relative min-h-screen'>
-      <OrganicSphere isPlaying={isPlaying} gradientColors={gradientColors} />
       <RadialGlow gradientColors={gradientColors} />
+      <OrganicSphere isPlaying={isPlaying} gradientColors={gradientColors} />
       <CursorGlow />
 
       <div className='flex-1 w-full flex flex-col items-center animate-fade-in-up relative'>
         <nav className='w-full flex justify-center border-b-foreground/10 h-16'>
           <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
             <AudioLines />
-            <SignOutButton />
+
+            <ListImages images={images} isLoading={isLoadingImages} />
           </div>
         </nav>
         <div className='flex-1 w-full z-10'>
@@ -313,6 +357,9 @@ export default function Player() {
                 tracks={tracks}
                 currentIndex={currentIndex}
                 setCurrentIndex={handleTrackChange}
+                tracksArt={tracksArt}
+                isLoadingImage={isLoadingImage}
+                generateImage={generateImage}
               />
 
               {/* Add right gradient overlay */}

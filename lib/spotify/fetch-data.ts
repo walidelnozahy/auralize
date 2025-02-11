@@ -1,7 +1,7 @@
 import {
   getSpotifyAccessToken,
   refreshSpotifyAccessToken,
-} from '@/utils/spotify/spotify-session';
+} from '@/lib/spotify/spotify-session';
 
 export const fetchSpotifyData = async (
   endpoint: string,
