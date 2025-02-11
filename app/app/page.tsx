@@ -8,11 +8,11 @@ import debounce from 'lodash/debounce';
 import { AudioLines, Pause, Play, SkipBack, SkipForward } from 'lucide-react';
 import { PlayerControls } from '../../components/player-controls';
 import { CursorGlow } from '@/components/cursor-glow';
-import { Spinner } from '@/components/spinner';
 import { useLikedTracks } from '../hooks/use-liked-tracks';
 import { RadialGlow } from '@/components/radial-glow';
 import { OrganicSphere } from '@/components/sphere';
 import { useExtractedColors } from '../hooks/use-extracted-colors';
+import AudioWave from '@/components/audio-wave';
 
 declare global {
   interface Window {
@@ -251,7 +251,7 @@ export default function Player() {
       title: isPlaying ? 'Pause' : 'Play',
       icon:
         isLoadingPlay || isPaginationLoading ? (
-          <Spinner className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+          <AudioWave />
         ) : isPlaying ? (
           <Pause className='h-full w-full text-neutral-500 dark:text-neutral-300' />
         ) : (
@@ -274,10 +274,7 @@ export default function Player() {
       <main className='flex min-h-screen flex-col items-center justify-center bg-background relative'>
         <RadialGlow gradientColors={gradientColors} />
         <CursorGlow />
-        <Spinner
-          size={48}
-          className='text-foreground animate-fade-in relative'
-        />
+        <AudioWave className='scale-150' />
       </main>
     );
 
@@ -286,7 +283,7 @@ export default function Player() {
       <OrganicSphere isPlaying={isPlaying} gradientColors={gradientColors} />
       <RadialGlow gradientColors={gradientColors} />
       <CursorGlow />
-      {/* <AudioVisualizer isPlaying={isPlaying} /> */}
+
       <div className='flex-1 w-full flex flex-col items-center animate-fade-in-up relative'>
         <nav className='w-full flex justify-center border-b-foreground/10 h-16'>
           <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>

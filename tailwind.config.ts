@@ -66,6 +66,14 @@ const config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       keyframes: {
+        'wave-medium': {
+          '0%, 100%': { height: '8px' },
+          '50%': { height: '18px' },
+        },
+        'wave-tiny': {
+          '0%, 100%': { height: '3px' },
+          '50%': { height: '5px' },
+        },
         'accordion-down': {
           from: {
             height: '0',
@@ -135,6 +143,8 @@ const config = {
         },
       },
       animation: {
+        'wave-medium': 'wave-medium 1.2s ease-in-out infinite',
+        'wave-tiny': 'wave-tiny 1.2s ease-in-out infinite',
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
         first: 'moveVertical 30s ease infinite',
