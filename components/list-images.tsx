@@ -14,6 +14,7 @@ import { AudioWaveform } from 'lucide-react';
 import { generatePublicUrl } from '@/lib/supabase/generate-image-public-url';
 import { useEffect } from 'react';
 import { useState } from 'react';
+import { signOutAction } from '@/app/actions/session';
 
 export function ListImages({
   images,
@@ -109,13 +110,7 @@ export function ListImages({
         </ScrollArea>
 
         <SheetFooter className='absolute bottom-0 left-0 right-0 p-6 border-t bg-background'>
-          <Button
-            variant='outline'
-            className='w-full'
-            onClick={() => {
-              /* Add sign out logic */
-            }}
-          >
+          <Button variant='outline' className='w-full' onClick={signOutAction}>
             <LogOut className='mr-2 h-4 w-4' />
             Sign Out
           </Button>
