@@ -34,12 +34,6 @@ export default function Home() {
             </svg>
             Sign in with Spotify
           </StarBorder>
-          <Link
-            href='/guest'
-            className=' text-neutral-500 hover:text-neutral-300 transition-colors'
-          >
-            Continue as Guest
-          </Link>
         </div>
       </div>
     </main>
