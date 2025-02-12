@@ -3,9 +3,9 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 
-export const CursorGlow: React.FC<{ imageColors: string[] }> = ({
-  imageColors,
-}) => {
+export const CursorGlow: React.FC<{
+  imageColors: string[] | undefined;
+}> = ({ imageColors = 'rgba(29, 78, 216, 0.15)' }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {

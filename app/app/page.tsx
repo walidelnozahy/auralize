@@ -23,18 +23,8 @@ import AudioWave from '@/components/audio-wave';
 import { ListImages } from '@/components/list-images';
 import { useImages } from '../hooks/use-images';
 import { generatePublicUrl } from '@/lib/supabase/generate-image-public-url';
-import {
-  colorSchemes,
-  genres,
-  getRandom,
-  lightingOptions,
-  moods,
-  promptOptions,
-  scenes,
-  styles,
-} from '@/lib/prompt-options';
+import { getRandom, promptOptions } from '@/lib/prompt-options';
 import { StatusSpinner } from '@/components/status-spinner';
-import { getPublicUrl } from '@/lib/supabase/get-image-from-path';
 
 declare global {
   interface Window {
@@ -97,8 +87,6 @@ export default function Player() {
       const data = await response.json();
       setCreatedRecord(data);
       console.log('data', data);
-
-      refresh();
     } catch (error) {
       console.error('Error generating image:', error);
       toast({
@@ -126,6 +114,7 @@ export default function Player() {
                 imageUrl,
               },
             }));
+            refresh();
           }
         });
     }, 2000);
@@ -401,10 +390,7 @@ export default function Player() {
     );
 
   return (
-    <main
-      className={`flex flex-col items-center min-h-screen relative`}
-      style={{}}
-    >
+    <main className={`flex flex-col items-center min-h-screen relative`}>
       <RadialGlow imageColors={imageColors} />
       <OrganicSphere isPlaying={isPlaying} imageColors={imageColors} />
       <CursorGlow imageColors={imageColors} />

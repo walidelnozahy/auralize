@@ -7,7 +7,7 @@ export default function RootLayout({
 }>) {
   return (
     <div className='min-h-screen w-full flex items-center justify-center'>
-      <CursorGlow />
+      <CursorGlow imageColors={['rgba(29, 78, 216, 0.15)']} />
       {children}
     </div>
   );
