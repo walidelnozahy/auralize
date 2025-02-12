@@ -61,7 +61,17 @@ export const lightingOptions = [
   'Volumetric fog',
   'Sunset glow',
   'Dreamy haze',
+  'Glowing light',
 ];
+
+export const promptOptions = {
+  style: styles,
+  mood: moods,
+  scene: scenes,
+  genre: genres,
+  colorScheme: colorSchemes,
+  lighting: lightingOptions,
+};
 
 export function getRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];

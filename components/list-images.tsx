@@ -77,34 +77,61 @@ export function ListImages({
             </div>
           ) : (
             <div className='grid grid-cols-2 gap-4 pb-4'>
-              {images?.map(
-                (item: {
-                  id: string;
-                  original_image_path: string;
-                  generated_image_path: string;
-                  prompt: string;
-                  metadata: {
-                    song: string;
-                    artist: string;
-                  };
-                }) => (
-                  <div key={item.id} className='relative group'>
-                    <img
-                      src={generatePublicUrl(item.generated_image_path)}
-                      alt={`${item.metadata.song} by ${item.metadata.artist}`}
-                      className='rounded-lg w-full aspect-square object-cover'
-                    />
-                    <div className='absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-2'>
-                      <Button variant='secondary' size='icon'>
-                        <Download className='h-4 w-4' />
-                      </Button>
-                      <Button variant='secondary' size='icon'>
-                        <Share2 className='h-4 w-4' />
-                      </Button>
+              {images
+                .filter((item) => item.status === 'done')
+                ?.map(
+                  (item: {
+                    id: string;
+                    original_image_path: string;
+                    generated_image_path: string;
+                    prompt: string;
+                    metadata: {
+                      song: string;
+                      artist: string;
+                    };
+                  }) => (
+                    <div key={item.id} className='relative group'>
+                      <img
+                        src={generatePublicUrl(item.generated_image_path)}
+                        alt={`${item.metadata.song} by ${item.metadata.artist}`}
+                        className='rounded-lg w-full aspect-square object-cover'
+                      />
+                      <div className='absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex flex-col items-center justify-center gap-2'>
+                        <div className='text-center mb-2'>
+                          <p className='text-sm text-white font-medium'>
+                            {item.metadata.song}
+                          </p>
+                          <p className='text-xs text-white/80'>
+                            {item.metadata.artist}
+                          </p>
+                        </div>
+                        <Button
+                          variant='secondary'
+                          size='icon'
+                          onClick={() => {
+                            const imageUrl = generatePublicUrl(
+                              item.generated_image_path,
+                            );
+                            fetch(imageUrl)
+                              .then((response) => response.blob())
+                              .then((blob) => {
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = `visualizer-${item.metadata.song}-${Date.now()}.png`;
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                              });
+                          }}
+                        >
+                          <Download className='h-4 w-4' />
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                ),
-              )}
+                  ),
+                )}
             </div>
           )}
         </ScrollArea>

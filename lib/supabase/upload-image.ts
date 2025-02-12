@@ -52,7 +52,7 @@ export async function uploadImageFromUrl({
       console.error('Error uploading image:', error);
       return null;
     }
-    console.log('data', data);
+
     // Get the public URL of the uploaded image
     const path = data?.path;
 

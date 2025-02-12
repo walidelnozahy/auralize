@@ -181,12 +181,24 @@ const fragmentShader = `
 
 interface OrganicSphereProps {
   isPlaying?: boolean;
-  gradientColors?: string[];
+  imageColors?: string[];
 }
+
+export const OrganicSphereWrapper = ({
+  isPlaying = false,
+  imageColors = ['rgb(77, 74, 69)', 'rgb(169, 157, 145)'],
+}: OrganicSphereProps) => {
+  // Use colors as key to force remount when they change
+  const key = imageColors.join('-');
+
+  return (
+    <OrganicSphere key={key} isPlaying={isPlaying} imageColors={imageColors} />
+  );
+};
 
 export const OrganicSphere = ({
   isPlaying = false,
-  gradientColors = ['rgb(77, 74, 69)', 'rgb(169, 157, 145)'],
+  imageColors = ['rgb(77, 74, 69)', 'rgb(169, 157, 145)'],
 }: OrganicSphereProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mousePosition = useRef({ x: 0, y: 0 });
@@ -195,63 +207,24 @@ export const OrganicSphere = ({
   const materialRef = useRef<THREE.ShaderMaterial | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
-  // Add a mounted ref to track initialization
-  const isMounted = useRef(false);
-
-  // Add cleanup flag ref
-  const isCleaningUp = useRef(false);
-
-  // Create a ref to track color updates
-  const colorUpdateRef = useRef(false);
-
   // Convert RGB strings to THREE.Color objects
   const colors = useMemo(() => {
-    const c1 = new THREE.Color(gradientColors[0] || 'rgb(77, 74, 69)');
-    const c2 = new THREE.Color(gradientColors[1] || 'rgb(169, 157, 145)');
+    const c1 = new THREE.Color(imageColors[0] || 'rgb(77, 74, 69)');
+    const c2 = new THREE.Color(imageColors[1] || 'rgb(169, 157, 145)');
     c1.multiplyScalar(1.2);
     c2.multiplyScalar(1.2);
     const result = { color1: c1, color2: c2 };
 
     return result;
-  }, [gradientColors]);
-
-  // Color update effect
-  useEffect(() => {
-    // Skip if no material or no colors
-    if (!materialRef.current || !gradientColors?.length) return;
-
-    // Skip if colors haven't changed
-    if (colorUpdateRef.current) return;
-
-    colorUpdateRef.current = true;
-
-    const newColor1 = new THREE.Color(gradientColors[0]);
-    const newColor2 = new THREE.Color(gradientColors[1]);
-
-    newColor1.multiplyScalar(1.2);
-    newColor2.multiplyScalar(1.2);
-
-    // Update the uniforms
-    materialRef.current.uniforms.uColor1.value.copy(newColor1);
-    materialRef.current.uniforms.uColor2.value.copy(newColor2);
-    materialRef.current.uniformsNeedUpdate = true;
-    materialRef.current.needsUpdate = true;
-
-    // Reset color update flag when colors change
-    return () => {
-      colorUpdateRef.current = false;
-    };
-  }, [gradientColors]); // Remove materialRef.current from dependencies
+  }, [imageColors?.[0], imageColors?.[1]]);
 
   useEffect(() => {
-    // Skip initialization if we're in cleanup
-    if (isMounted.current || !containerRef.current || isCleaningUp.current) {
+    // Skip if no container
+    if (!containerRef.current) {
       return;
     }
 
-    isMounted.current = true;
-
-    // Check if a renderer already exists and clean it up
+    // Immediate cleanup of existing instances
     if (rendererRef.current) {
       if (containerRef.current.contains(rendererRef.current.domElement)) {
         containerRef.current.removeChild(rendererRef.current.domElement);
@@ -260,6 +233,21 @@ export const OrganicSphere = ({
       rendererRef.current = null;
     }
 
+    if (materialRef.current) {
+      materialRef.current.dispose();
+      materialRef.current = null;
+    }
+
+    if (sphereRef.current?.geometry) {
+      sphereRef.current.geometry.dispose();
+    }
+
+    // Clear the container
+    while (containerRef.current.firstChild) {
+      containerRef.current.removeChild(containerRef.current.firstChild);
+    }
+
+    // Now initialize new instance
     const scene = new THREE.Scene();
     const backgroundColor = new THREE.Color(0x08020c);
     scene.background = backgroundColor;
@@ -310,8 +298,8 @@ export const OrganicSphere = ({
         uLightPosition: { value: new THREE.Vector3(2, 2, 2) },
         uLightPosition2: { value: new THREE.Vector3(-2, -2, 2) },
         uBackgroundColor: { value: backgroundColor },
-        uColor1: { value: new THREE.Color(colors.color1) },
-        uColor2: { value: new THREE.Color(colors.color2) },
+        uColor1: { value: colors.color1.clone() },
+        uColor2: { value: colors.color2.clone() },
       },
     });
     materialRef.current = material;
@@ -411,13 +399,14 @@ export const OrganicSphere = ({
     window.addEventListener('resize', handleResize);
 
     return () => {
-      isCleaningUp.current = true;
-      isMounted.current = false;
-      geometry.dispose();
+      // Cleanup on unmount
       if (materialRef.current) {
         materialRef.current.dispose();
+        materialRef.current = null;
       }
-      materialRef.current = null;
+      if (sphereRef.current?.geometry) {
+        sphereRef.current.geometry.dispose();
+      }
       if (rendererRef.current) {
         rendererRef.current.dispose();
         if (containerRef.current?.contains(rendererRef.current.domElement)) {
@@ -428,7 +417,7 @@ export const OrganicSphere = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [imageColors?.[0], imageColors?.[1]]);
 
   // Update target scale when isPlaying changes
   useEffect(() => {
@@ -440,7 +429,7 @@ export const OrganicSphere = ({
   return (
     <div
       ref={containerRef}
-      className='absolute inset-0 -z-10'
+      className='absolute inset-0 z-5'
       style={{
         width: '100%',
         height: '100%',

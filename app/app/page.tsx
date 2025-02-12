@@ -11,6 +11,7 @@ import {
   SkipBack,
   SkipForward,
   SlidersHorizontal,
+  Sparkles,
 } from 'lucide-react';
 import { PlayerControls } from '../../components/player-controls';
 import { CursorGlow } from '@/components/cursor-glow';
@@ -28,8 +29,12 @@ import {
   getRandom,
   lightingOptions,
   moods,
+  promptOptions,
   scenes,
+  styles,
 } from '@/lib/prompt-options';
+import { StatusSpinner } from '@/components/status-spinner';
+import { getPublicUrl } from '@/lib/supabase/get-image-from-path';
 
 declare global {
   interface Window {
@@ -45,28 +50,34 @@ export default function Player() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [player, setPlayer] = useState<any>(null);
   const [deviceId, setDeviceId] = useState<string>('');
-  const [promptSettings, setPromptSettings] = useState({
-    mood: getRandom(moods),
-    scene: getRandom(scenes),
-    genre: getRandom(genres),
-    colorScheme: getRandom(colorSchemes),
-    lightingOption: getRandom(lightingOptions),
+  const [promptSettings, setPromptSettings] = useState(() => {
+    return Object.keys(promptOptions).reduce(
+      (acc, key) => ({
+        ...acc,
+        [key]: getRandom(promptOptions[key as keyof typeof promptOptions]),
+      }),
+      {},
+    );
   });
   const { toast } = useToast();
   const { images, isLoading: isLoadingImages, refresh } = useImages();
-  const { gradientColors } = useExtractedColors(
+  const { imageColors } = useExtractedColors(
     tracks[currentIndex]?.album?.images[0]?.url,
   );
 
   const [tracksArt, setTracksArt] = useState<{
     [key: string]: { imageUrl: string };
   }>({});
-  const [isLoadingImage, setIsLoadingImage] = useState(false);
 
+  const [createdRecord, setCreatedRecord] = useState<any>(null);
   const generateImage = async () => {
-    setIsLoadingImage(true);
     if (!tracks[currentIndex]) return;
+
     try {
+      setCreatedRecord({
+        id: null,
+        status: 'analyzing',
+      });
       const response = await fetch('/api/generate-image', {
         method: 'POST',
         body: JSON.stringify({
@@ -74,7 +85,8 @@ export default function Player() {
           song: tracks[currentIndex].name,
           artist: tracks[currentIndex].artists[0].name,
           imageUrl: tracks[currentIndex].album.images[0].url,
-          extractedColors: gradientColors,
+          extractedColors: imageColors,
+          ...promptSettings,
         }),
       });
 
@@ -82,14 +94,10 @@ export default function Player() {
         throw new Error('Failed to generate image');
       }
 
-      const imageUrl = await response.json();
-      setTracksArt((prev) => ({
-        ...prev,
-        [tracks[currentIndex].id]: {
-          ...tracks[currentIndex].album.images[0],
-          imageUrl,
-        },
-      }));
+      const data = await response.json();
+      setCreatedRecord(data);
+      console.log('data', data);
+
       refresh();
     } catch (error) {
       console.error('Error generating image:', error);
@@ -98,13 +106,31 @@ export default function Player() {
         title: 'Error',
         description: 'Failed to generate artwork',
       });
-    } finally {
-      setIsLoadingImage(false);
     }
   };
+
   useEffect(() => {
-    generateImage();
-  }, [tracks[currentIndex]]);
+    const interval = setInterval(() => {
+      if (!createdRecord?.id || createdRecord?.status === 'done') return;
+      fetch(`/api/poll?id=${createdRecord?.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          console.log('data', data);
+          setCreatedRecord(data);
+          if (data?.status === 'done') {
+            const imageUrl = generatePublicUrl(data?.generated_image_path);
+            setTracksArt((prev) => ({
+              ...prev,
+              [tracks[currentIndex].id]: {
+                ...tracks[currentIndex].album.images[0],
+                imageUrl,
+              },
+            }));
+          }
+        });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [createdRecord]);
   // Initialize Spotify Web Playback SDK
   useEffect(() => {
     const script = document.createElement('script');
@@ -240,6 +266,7 @@ export default function Player() {
   // Update handleTrackChange to use debounced playTrack
   const handleTrackChange = async (newIndex: number) => {
     setCurrentIndex(newIndex);
+    setCreatedRecord(null);
     await debouncedPlayTrack(newIndex);
   };
 
@@ -345,11 +372,21 @@ export default function Player() {
       icon: (
         <SlidersHorizontal className='h-full w-full text-neutral-500 dark:text-neutral-300' />
       ),
-      onClick: (category: string) => (value: string) => {
+      onClick: (key: string, value: string) => {
         setPromptSettings((prev) => ({
           ...prev,
-          [category]: value,
+          [key]: value,
         }));
+      },
+    },
+    {
+      title: 'Generate',
+      icon: (
+        <Sparkles className='h-full w-full text-neutral-500 dark:text-neutral-300' />
+      ),
+      isPrimary: true,
+      onClick: () => {
+        generateImage();
       },
     },
   ];
@@ -357,57 +394,53 @@ export default function Player() {
   if (loading)
     return (
       <main className='flex min-h-screen flex-col items-center justify-center bg-background relative'>
-        <RadialGlow gradientColors={gradientColors} />
-        <CursorGlow />
+        <RadialGlow imageColors={imageColors} />
+        <CursorGlow imageColors={imageColors} />
         <AudioWave className='scale-150' />
       </main>
     );
 
   return (
-    <main className='flex flex-col items-center relative min-h-screen'>
-      <RadialGlow gradientColors={gradientColors} />
-      <OrganicSphere isPlaying={isPlaying} gradientColors={gradientColors} />
-      <CursorGlow />
+    <main
+      className={`flex flex-col items-center min-h-screen relative`}
+      style={{}}
+    >
+      <RadialGlow imageColors={imageColors} />
+      <OrganicSphere isPlaying={isPlaying} imageColors={imageColors} />
+      <CursorGlow imageColors={imageColors} />
 
-      <div className='flex-1 w-full flex flex-col items-center animate-fade-in-up relative'>
-        <nav className='w-full flex justify-center border-b-foreground/10 h-16'>
-          <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
-            <AudioLines />
-
-            <ListImages images={images} isLoading={isLoadingImages} />
+      <nav className='w-full flex justify-center border-b-foreground/10 h-16 bg-transparent relative z-100'>
+        <div className='w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm'>
+          <AudioLines />
+          <ListImages images={images} isLoading={isLoadingImages} />
+        </div>
+      </nav>
+      <div className='flex-1 animate-fade-in-up h-full w-full relative'>
+        {!tracks.length ? (
+          <div className='flex items-center justify-center'>
+            <p className='text-gray-500'>No tracks found</p>
           </div>
-        </nav>
-        <div className='flex-1 w-full z-10'>
-          {!tracks.length ? (
-            <div className='flex-1 flex h-[500px] items-center justify-center'>
-              <p className=' text-gray-500'>No tracks found</p>
-            </div>
-          ) : (
-            <div className='flex-1 w-full flex flex-col gap-2 mt-4 relative'>
-              {/* Add left gradient overlay */}
-              <div className='absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-20' />
-
-              <TrackCarousel
-                tracks={tracks}
-                currentIndex={currentIndex}
-                setCurrentIndex={handleTrackChange}
-                tracksArt={tracksArt}
-                isLoadingImage={isLoadingImage}
-                generateImage={generateImage}
-              />
-              {isLoadingImage && (
-                <div className='absolute bottom-20 left-0 right-0 flex items-center justify-center'>
-                  <AudioWave className='w-12 h-12 text-white' />
-                  <p className='text-white/80 text-sm'>Bringing to life...</p>
-                </div>
-              )}
+        ) : (
+          <>
+            {/* Add left gradient overlay */}
+            <div className='absolute left-0 top-0 bottom-0 w-40 bg-gradient-to-r from-background to-transparent z-20' />
+            <TrackCarousel
+              tracks={tracks}
+              currentIndex={currentIndex}
+              setCurrentIndex={handleTrackChange}
+              tracksArt={tracksArt}
+            />
+            {/* Add right gradient overlay */}
+            <div className='absolute right-0 top-0 bottom-0 w-40 bg-gradient-to-l from-background to-transparent z-20' />
+            <div className='fixed bottom-10 left-1/2 -translate-x-1/2 w-fit'>
+              <StatusSpinner status={createdRecord?.status} />
               <PlayerControls
                 promptSettings={promptSettings}
                 items={controls}
               />
             </div>
-          )}
-        </div>
+          </>
+        )}
       </div>
     </main>
   );

@@ -8,14 +8,17 @@ import {
   useTransform,
 } from 'framer-motion';
 import { useRef, useState, memo } from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import {
-  colorSchemes,
-  genres,
-  lightingOptions,
-  moods,
-  scenes,
-} from '@/lib/prompt-options';
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from './ui/dialog';
+import { promptOptions } from '@/lib/prompt-options';
 import {
   Select,
   SelectContent,
@@ -23,23 +26,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from './ui/select';
-import { styles } from '@/lib/prompt-options';
-
-const INITIAL_SETTINGS = {
-  style: styles,
-  mood: moods,
-  scene: scenes,
-  genre: genres,
-  colorScheme: colorSchemes,
-  lighting: lightingOptions,
-};
+import { Button } from './ui/button';
 
 export const PlayerControls = ({
   items,
   promptSettings,
 }: {
   items: any;
-  promptSettings: Record<string, string>;
+  promptSettings: any;
 }) => {
   let mouseX = useMotionValue(Infinity);
 
@@ -53,51 +47,52 @@ export const PlayerControls = ({
     >
       {items.map((item: any, idx: number) =>
         item.title === 'Settings' ? (
-          <Popover key={`player-control-${idx}`}>
-            <PopoverTrigger asChild>
+          <Dialog key={`player-control-${idx}`}>
+            <DialogTrigger asChild>
               <div>
                 <IconContainer mouseX={mouseX} {...item} />
               </div>
-            </PopoverTrigger>
-            <PopoverContent className='w-80'>
+            </DialogTrigger>
+            <DialogContent className='sm:max-w-[425px]'>
+              <DialogHeader>
+                <DialogTitle>Visualization Settings</DialogTitle>
+                <DialogDescription>
+                  Customize your music visualization experience
+                </DialogDescription>
+              </DialogHeader>
               <div className='grid gap-4'>
-                <div className='grid gap-2'>
-                  <h4 className='font-medium leading-none'>
-                    Visualization Settings
-                  </h4>
-                  <p className='text-sm text-muted-foreground'>
-                    Customize your music visualization experience
-                  </p>
-                </div>
-                <div className='grid gap-2'>
-                  {Object.entries(INITIAL_SETTINGS).map(
-                    ([category, options]) => (
-                      <Select
-                        key={category}
-                        value={promptSettings[category]}
-                        onValueChange={(value) => {
-                          item.onClick(category);
-                        }}
-                      >
-                        <SelectTrigger className='w-full'>
-                          <SelectValue
-                            placeholder={`Select ${category.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {options.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    ),
-                  )}
-                </div>
+                {Object.keys(promptOptions).map((key) => (
+                  <Select
+                    key={`prompt-setting-${key}`}
+                    value={promptSettings[key as keyof typeof promptSettings]}
+                    onValueChange={(value) => {
+                      item.onClick(key, value);
+                    }}
+                  >
+                    <SelectTrigger className='w-full'>
+                      <SelectValue
+                        placeholder={`Select ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}`}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {promptOptions[key as keyof typeof promptOptions].map(
+                        (option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
+                ))}
               </div>
-            </PopoverContent>
-          </Popover>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button className='w-full mt-4'>Done</Button>
+                </DialogClose>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         ) : (
           <IconContainer
             mouseX={mouseX}
@@ -116,11 +111,13 @@ const IconContainer = memo(
     title,
     icon,
     onClick,
+    isPrimary,
   }: {
     mouseX: MotionValue;
     title: string;
     icon: React.ReactNode;
     onClick: () => void;
+    isPrimary?: boolean;
   }) {
     let ref = useRef<HTMLDivElement>(null);
     const [hovered, setHovered] = useState(false);
@@ -179,7 +176,12 @@ const IconContainer = memo(
           style={{ width, height }}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
-          className='aspect-square rounded-full bg-transparent dark:bg-neutral-800 flex items-center justify-center relative'
+          className={cn(
+            'aspect-square rounded-full flex items-center justify-center relative',
+            isPrimary
+              ? 'bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 dark:from-indigo-600 dark:via-purple-600 dark:to-pink-600'
+              : 'bg-transparent dark:bg-neutral-800',
+          )}
         >
           <AnimatePresence>
             {hovered && (
