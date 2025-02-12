@@ -1,69 +1,5 @@
+import { promptOptions } from '../prompt-options';
 import { openai } from './client';
-
-const styles = [
-  'Cyberpunk',
-  'Fantasy',
-  'Surrealism',
-  'Watercolor',
-  'Anime',
-  'Impressionism',
-  'Futuristic',
-  'Dark Gothic',
-  'Minimalist',
-  'Dreamy',
-  'Abstract',
-];
-
-const moods = [
-  'Energetic',
-  'Chill',
-  'Melancholic',
-  'Happy',
-  'Dark',
-  'Mystical',
-  'Trippy',
-];
-
-const scenes = [
-  'A neon-lit futuristic city with flying cars',
-  'A misty enchanted forest with glowing trees',
-  'A vast cosmic landscape with swirling galaxies',
-  'An underwater kingdom with bioluminescent creatures',
-  'A cyberpunk street with holographic billboards',
-  'An ancient temple surrounded by golden light',
-  'A post-apocalyptic wasteland with ruins',
-];
-
-const genres = [
-  'Rock',
-  'Jazz',
-  'Synthwave',
-  'Classical',
-  'EDM',
-  'Lo-Fi',
-  'Hip-Hop',
-  'Orchestral',
-];
-
-const colorSchemes = [
-  'Vibrant neon',
-  'Pastel tones',
-  'Dark moody',
-  'Golden sunset',
-  'Black and white',
-  'Retro 80s',
-  'Monochrome',
-];
-
-const lightingOptions = [
-  'Cinematic lighting',
-  'Soft glow',
-  'Harsh shadows',
-  'Ethereal light rays',
-  'Volumetric fog',
-  'Sunset glow',
-  'Dreamy haze',
-];
 
 function getRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
@@ -74,12 +10,12 @@ export async function generateArtPrompt({
   artist,
   imageUrl,
   extractedColors,
-  style = getRandom(styles),
-  mood = getRandom(moods),
-  scene = getRandom(scenes),
-  genre = getRandom(genres),
-  colorScheme = getRandom(colorSchemes),
-  lighting = getRandom(lightingOptions),
+  style = getRandom(promptOptions.style),
+  mood = getRandom(promptOptions.mood),
+  scene = getRandom(promptOptions.scene),
+  genre = getRandom(promptOptions.genre),
+  colorScheme = getRandom(promptOptions.colorScheme),
+  lighting = getRandom(promptOptions.lighting),
 }: {
   song: string;
   artist: string;
@@ -94,33 +30,33 @@ export async function generateArtPrompt({
 }): Promise<string> {
   const colorPalette =
     extractedColors.length > 0 ? extractedColors.join(', ') : colorScheme;
-
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
     messages: [
       {
         role: 'system',
         content:
-          "You are an AI designed to analyze album cover art and generate an AI art prompt for digital artwork. Describe the image with artistic depth and generate a unique AI prompt using the song's details.",
+          "You are an AI designed to analyze album cover art and generate a highly detailed AI art prompt. Prioritize the composition, colors, and mood of the provided image while ensuring coherence with the song's theme. Use artistic language to enhance the visual description.",
       },
       {
         role: 'user',
         content: [
           {
             type: 'text',
-            text: `Analyze this album cover and generate an AI art prompt that blends the song's essence with the image. 
-              Use artistic language, composition, mood, and colors while ensuring visual coherence. 
-              The song details:
-              - Song: "${song}"
-              - Artist: "${artist}"
-              - Style: ${style}
-              - Mood: ${mood}
-              - Scene: ${scene}
-              - Genre Influence: ${genre}
-              - Color Scheme (from extracted colors): ${colorPalette}
-              - Lighting: ${lighting}
-              
-              Make the AI-generated prompt detailed, cinematic, and visually stunning.`,
+            text: `Analyze this album cover and generate an AI art prompt that primarily reflects the visual elements of the image while incorporating the song’s essence. 
+                The song details are additional inspiration but should not override the image's core aesthetic.
+                
+                - Song: "${song}"
+                - Artist: "${artist}"
+                - Influences (for subtle guidance): 
+                  - Style: ${style}
+                  - Mood: ${mood}
+                  - Scene: ${scene}
+                  - Genre Influence: ${genre}
+                  - Color Scheme (from extracted colors): ${colorPalette}
+                  - Lighting: ${lighting}
+  
+                Ensure the AI-generated prompt is highly descriptive, cinematic, and visually compelling.`,
           },
           { type: 'image_url', image_url: { url: imageUrl } },
         ],

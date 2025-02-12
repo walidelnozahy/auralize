@@ -10,8 +10,31 @@ const defaultUrl = process.env.VERCEL_URL
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: 'Next.js and Supabase Starter Kit',
-  description: 'The fastest way to build apps with Next.js and Supabase',
+  title: 'Auralize · Transform Music into Art',
+  description:
+    'Turn your favorite songs into stunning AI-generated artwork. Experience music visualization like never before with our innovative audio-to-image technology.',
+  openGraph: {
+    title: 'Auralize · Transform Music into Art',
+    description:
+      'Turn your favorite songs into stunning AI-generated artwork. Experience music visualization like never before with our innovative audio-to-image technology.',
+    url: defaultUrl,
+    images: [
+      {
+        url: '/meta-image.png',
+        width: 800,
+        height: 600,
+        alt: 'Auralize - Music to Art Generation',
+      },
+    ],
+    siteName: 'Auralize',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Auralize · Transform Music into Art',
+    description:
+      'Turn your favorite songs into stunning AI-generated artwork. Experience music visualization like never before with our innovative audio-to-image technology.',
+  },
 };
 
 const geistSans = Geist({

@@ -9,7 +9,7 @@ export async function getPublicUrl(path: string) {
 }
 export async function getImageSignedFromPath(path: string) {
   if (!path) return '';
-  console.log('path', path);
+
   const supabase = await createClient();
   const response = await supabase.storage
     .from('images')

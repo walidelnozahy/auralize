@@ -1,15 +1,19 @@
 import { createClient } from './server';
 
-export async function saveGeneratedImage({
+export async function saveRecord({
+  id,
   originalImagePath,
   generatedImagePath,
   prompt,
   metadata,
+  status,
 }: {
-  originalImagePath: string;
-  generatedImagePath: string;
-  prompt: string;
-  metadata: {
+  id?: string;
+  originalImagePath?: string;
+  generatedImagePath?: string;
+  prompt?: string;
+  status?: string;
+  metadata?: {
     song: string;
     artist: string;
     style: string;
@@ -19,7 +23,7 @@ export async function saveGeneratedImage({
     colorScheme: string;
     lighting: string;
   };
-}): Promise<boolean> {
+}): Promise<any> {
   try {
     const supabase = await createClient();
 
@@ -29,18 +33,22 @@ export async function saveGeneratedImage({
     } = await supabase.auth.getUser();
 
     if (!user) throw new Error('User not authenticated');
-    if (!originalImagePath || !generatedImagePath || !prompt)
-      throw new Error('Invalid input');
+
     // Insert the generated image data into the database
-    const { data, error } = await supabase.from('generated_images').insert([
-      {
-        user_id: user.id,
-        original_image_path: originalImagePath,
-        generated_image_path: generatedImagePath,
-        prompt: prompt,
-        metadata: metadata,
-      },
-    ]);
+    const { data, error } = await supabase
+      .from('generated_images')
+      .upsert([
+        {
+          ...(id ? { id } : {}),
+          user_id: user.id,
+          original_image_path: originalImagePath,
+          generated_image_path: generatedImagePath,
+          prompt: prompt,
+          metadata: metadata,
+          status: status,
+        },
+      ])
+      .select();
 
     if (error) {
       console.error('Error saving generated image:', error);
@@ -48,7 +56,7 @@ export async function saveGeneratedImage({
     }
 
     console.log('Generated image saved successfully');
-    return true;
+    return data;
   } catch (error) {
     console.error('Error processing database insert:', error);
     return false;

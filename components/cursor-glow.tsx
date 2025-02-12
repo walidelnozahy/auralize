@@ -3,7 +3,9 @@
 import type React from 'react';
 import { useState, useEffect } from 'react';
 
-export const CursorGlow: React.FC = () => {
+export const CursorGlow: React.FC<{
+  imageColors: string[] | undefined;
+}> = ({ imageColors = 'rgba(29, 78, 216, 0.15)' }) => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
@@ -18,9 +20,9 @@ export const CursorGlow: React.FC = () => {
 
   return (
     <div
-      className='pointer-events-none fixed inset-0 z-30 transition duration-300 lg:absolute'
+      className='pointer-events-none fixed inset-0  transition duration-300 lg:absolute -z-10'
       style={{
-        background: `radial-gradient(600px at ${position.x}px ${position.y}px, rgba(29, 78, 216, 0.15), transparent 80%)`,
+        background: `radial-gradient(600px at ${position.x}px ${position.y}px, ${imageColors[0]}, transparent 80%)`,
       }}
     />
   );

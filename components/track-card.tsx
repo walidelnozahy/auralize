@@ -13,13 +13,11 @@ const TrackCard = ({
   currentIndex,
   isCurrent,
   tracksArt,
-  // isLoadingImage,
-  // generateImage,
 }: TrackCardProps) => {
   if (isCurrent) {
     return (
-      <CardContainer className='inter-var w-80 '>
-        <BackgroundGradient className='rounded-[22px] h-full'>
+      <CardContainer className=' '>
+        <BackgroundGradient className='rounded-[22px] '>
           <CardBody className='bg-zinc-900/90 rounded-[22px] border border-white/[0.2] group overflow-hidden h-full flex flex-col'>
             <div className='relative w-full aspect-[4/5] overflow-hidden flex-1'>
               <div

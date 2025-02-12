@@ -2,16 +2,17 @@
 
 import type React from 'react';
 
-export const RadialGlow: React.FC<{ gradientColors: string[] }> = ({
-  gradientColors,
+export const RadialGlow: React.FC<{ imageColors: string[] }> = ({
+  imageColors,
 }) => {
   return (
     <div
-      className='absolute inset-0 overflow-hidden'
+      className='absolute inset-0 overflow-hidden -z-1'
       style={{
-        background: `radial-gradient(circle at center, ${gradientColors[0]} 0%, ${gradientColors[1] || 'transparent'} 35%, transparent 90%)`,
-        opacity: 0.15,
-        filter: 'blur(100px)',
+        // backgroundColor: imageColors[0],
+        background: `radial-gradient(circle at center, ${imageColors[0]}, ${imageColors[1]})`,
+        // opacity: 0.2,
+        // filter: 'blur(82px)',
       }}
     />
   );

@@ -9,7 +9,7 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className='min-h-screen flex items-center justify-center p-4 bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden'>
-      <CursorGlow />
+      <CursorGlow imageColors={['rgba(29, 78, 216, 0.15)']} />
       <Spotlight />
       <div className='flex flex-col gap-8 items-center max-w-3xl mx-auto text-center relative z-10'>
         <div className='space-y-2 animate-fade-in-up [animation-delay:200ms] opacity-0 [animation-fill-mode:forwards]'>
@@ -34,12 +34,6 @@ export default function Home() {
             </svg>
             Sign in with Spotify
           </StarBorder>
-          <Link
-            href='/guest'
-            className=' text-neutral-500 hover:text-neutral-300 transition-colors'
-          >
-            Continue as Guest
-          </Link>
         </div>
       </div>
     </main>

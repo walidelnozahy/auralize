@@ -2,9 +2,7 @@ import { extractColors } from 'extract-colors';
 import { useState, useEffect } from 'react';
 
 export function useExtractedColors(url: string) {
-  const [gradientColors, setGradientColors] = useState<string[]>([
-    'rgb(45, 45, 45)',
-  ]);
+  const [imageColors, setImageColors] = useState<string[]>(['rgb(45, 45, 45)']);
 
   useEffect(() => {
     const getImageColors = async () => {
@@ -23,8 +21,8 @@ export function useExtractedColors(url: string) {
         const sortedColors = colors.sort((a, b) => b.area - a.area);
         const topColors = sortedColors
           .slice(0, 2)
-          .map((color) => `rgb(${color.red}, ${color.green}, ${color.blue})`);
-        setGradientColors(topColors);
+          .map((color) => `${color.hex}`);
+        setImageColors(topColors);
       } catch (error) {
         console.error('Error extracting colors:', error);
       }
@@ -33,5 +31,5 @@ export function useExtractedColors(url: string) {
     getImageColors();
   }, [url]);
 
-  return { gradientColors };
+  return { imageColors };
 }

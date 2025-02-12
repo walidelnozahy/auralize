@@ -3,15 +3,12 @@
 import React from 'react';
 import TrackCard from './track-card';
 import { TrackCarouselProps } from '@/lib/types';
-import AudioWave from './audio-wave';
 
 const TrackCarousel = ({
   tracks,
   currentIndex,
   setCurrentIndex,
   tracksArt,
-  isLoadingImage,
-  generateImage,
 }: TrackCarouselProps) => {
   const getCardStyle = (index: number) => {
     const diff = index - currentIndex;
@@ -22,14 +19,15 @@ const TrackCarousel = ({
     let zIndex = 0;
 
     if (diff === 0) {
+      translateX = '0%';
       scale = 1;
       zIndex = 3;
     } else if (Math.abs(diff) === 1) {
-      translateX = diff > 0 ? '90%' : '-90%';
+      translateX = diff > 0 ? '120%' : '-120%';
       scale = 0.8;
       zIndex = 2;
     } else if (Math.abs(diff) === 2) {
-      translateX = diff > 0 ? '175%' : '-175%';
+      translateX = diff > 0 ? '220%' : '-220%';
       scale = 0.6;
       zIndex = 1;
     } else {
@@ -56,35 +54,25 @@ const TrackCarousel = ({
   };
 
   return (
-    <div className='relative h-[600px] w-full overflow-hidden'>
-      {tracks.length === 0 ? (
-        <div className='flex h-full items-center justify-center'>
-          <p className=' text-gray-500'>No tracks found</p>
-        </div>
-      ) : (
-        <div className='absolute inset-0 flex items-center justify-center'>
-          {getVisibleTracks().map((index) => (
-            <div
-              key={`${tracks[index].id}-${index}`}
-              className='absolute transition-all duration-300 ease-in-out '
-              style={getCardStyle(index)}
-              onClick={() => setCurrentIndex(currentIndex)}
-            >
-              <TrackCard
-                setCurrentIndex={setCurrentIndex}
-                track={tracks[index]}
-                currentIndex={currentIndex}
-                isCurrent={index === currentIndex}
-                tracksArt={tracksArt}
-                isLoadingImage={isLoadingImage}
-                generateImage={generateImage}
-              />
-            </div>
-          ))}
-        </div>
-      )}
-      {/* Add right gradient overlay */}
-      <div className='absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-20' />
+    <div className='fixed h-[500px] flex items-center justify-center h-fill top-1/2 -translate-y-1/2 left-1/2 -translate-x-1/2 bg-transparent'>
+      <div className='relative w-full h-[500px] mx-auto flex items-center justify-center'>
+        {getVisibleTracks().map((index) => (
+          <div
+            key={`${tracks[index].id}-${index}`}
+            className='absolute  transition-all duration-500 ease-in-out cursor-pointer z-20'
+            style={getCardStyle(index)}
+            onClick={() => setCurrentIndex(index)}
+          >
+            <TrackCard
+              setCurrentIndex={setCurrentIndex}
+              track={tracks[index]}
+              currentIndex={currentIndex}
+              isCurrent={index === currentIndex}
+              tracksArt={tracksArt}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 };

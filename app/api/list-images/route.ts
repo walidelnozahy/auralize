@@ -20,7 +20,7 @@ export async function GET(req: Request) {
     const { data, error } = await supabase
       .from('generated_images')
       .select(
-        'id, original_image_path, generated_image_path, prompt, metadata, created_at',
+        'id, original_image_path, generated_image_path, prompt, metadata, created_at, status',
       )
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
