@@ -1,6 +1,5 @@
 <div align="center">
   <img alt="Auralize - See Your Music!" src="https://github.com/user-attachments/assets/936d6119-3ace-4800-9d58-7d49359de356">
-  <h1>Auralize ✨</h1>
   <p>Ever wondered what your music looks like? Now you can find out!</p>
 </div>
 
@@ -118,7 +117,7 @@ Now go make some AI art! 🎨 🎵 ✨
 
 ## Known Limitations & Future Plans
 
-> **Note:** Unfortunately, Spotify has deprecated their audio analysis and audio features endpoints, which limited our ability to do deep music analysis. The current version relies more on track metadata and album artwork for generating visuals.
+> **Note:** Unfortunately, Spotify has deprecated their audio analysis and audio features endpoints, which limited the ability to do deep music analysis. The current version relies more on track metadata and album artwork for generating visuals.
 
 ### Future Ideas 🚀
 
