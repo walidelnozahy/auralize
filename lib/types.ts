@@ -44,7 +44,7 @@ export interface TrackCarouselProps {
 export interface TrackCardProps {
   track: Track;
   currentIndex: number;
-  tracksArt: { [key: string]: { imageUrl: string } };
+  tracksArt: { [key: string]: { imageUrl: string; videoUrl: string } };
   setCurrentIndex: (index: number) => void;
   isCurrent: boolean;
 }

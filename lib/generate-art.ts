@@ -1,10 +1,11 @@
+import { generateVideo } from './generate-video';
 import { openai } from './openai/client';
 import { generateArtPrompt } from './openai/generate-art-prompt';
 import { getPublicUrl } from './supabase/get-image-from-path';
 import { saveRecord } from './supabase/save-record';
 import { uploadImageFromUrl } from './supabase/upload-image';
 
-export async function createImageArt(body: any, recordId: string) {
+export async function generateArt(body: any, recordId: string) {
   try {
     const originalImagePath = await uploadImageFromUrl({
       song: body.song,
@@ -13,7 +14,8 @@ export async function createImageArt(body: any, recordId: string) {
     });
 
     const prompt = await generateArtPrompt(body);
-
+    generateVideo(body.imageUrl || '', prompt || '', recordId);
+    return;
     await saveRecord({
       id: recordId,
       metadata: body,
@@ -39,12 +41,16 @@ export async function createImageArt(body: any, recordId: string) {
       generatedImagePath: generatedImagePath || '',
       prompt: prompt || '',
       metadata: body,
-      status: 'done',
     });
+    generateVideo(generatedImagePath || '', prompt || '', recordId);
 
     const imageUrl = await getPublicUrl(generatedImagePath || '');
     return imageUrl;
   } catch (error) {
+    await saveRecord({
+      id: recordId,
+      status: 'error',
+    });
     console.error('Error creating image art:', error);
     throw error;
   }

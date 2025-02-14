@@ -72,7 +72,7 @@ export default function Player() {
         id: null,
         status: 'analyzing',
       });
-      const response = await fetch('/api/generate-image', {
+      const response = await fetch('/api/generate-art', {
         method: 'POST',
         body: JSON.stringify({
           trackId: tracks[currentIndex].id,
@@ -100,22 +100,41 @@ export default function Player() {
       });
     }
   };
-
+  console.log('tracksArt', tracksArt);
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!createdRecord?.id || createdRecord?.status === 'done') return;
+      if (!createdRecord?.id || createdRecord?.status === 'done') {
+        return;
+      }
+      if (createdRecord?.status === 'error') {
+        setCreatedRecord({
+          id: null,
+          status: 'error',
+        });
+        return;
+      }
       fetch(`/api/poll?id=${createdRecord?.id}`)
         .then((res) => res.json())
         .then((data) => {
+          if (data?.status === 'error') {
+            clearInterval(interval);
+            toast({
+              title: 'Error',
+              description: 'Failed to generate artwork',
+              variant: 'destructive',
+            });
+            return;
+          }
           console.log('data', data);
           setCreatedRecord(data);
-          if (data?.status === 'done') {
+          if (data?.status === 'done' || data?.generated_image_path) {
             const imageUrl = generatePublicUrl(data?.generated_image_path);
             setTracksArt((prev) => ({
               ...prev,
               [tracks[currentIndex].id]: {
                 ...tracks[currentIndex].album.images[0],
                 imageUrl,
+                videoUrl: data?.video_url,
               },
             }));
             refresh();

@@ -14,19 +14,47 @@ const TrackCard = ({
   isCurrent,
   tracksArt,
 }: TrackCardProps) => {
+  const [isVideoLoaded, setIsVideoLoaded] = React.useState(false);
+
+  const handleVideoLoad = () => {
+    setIsVideoLoaded(true);
+  };
+
+  const videoElement = tracksArt?.[track.id]?.videoUrl ? (
+    <video
+      className={`absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 z-100 ${
+        isVideoLoaded ? 'opacity-100' : 'opacity-0'
+      }`}
+      src={tracksArt?.[track.id]?.videoUrl}
+      autoPlay
+      loop
+      muted
+      playsInline
+      onLoadedData={handleVideoLoad}
+    />
+  ) : null;
+
+  const imageElement = (
+    <div
+      className={`absolute inset-0 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-500 z-100 ${
+        tracksArt?.[track.id]?.videoUrl && isVideoLoaded
+          ? 'opacity-0'
+          : 'opacity-100'
+      }`}
+      style={{
+        backgroundImage: `url(${tracksArt?.[track.id]?.imageUrl || track.album.images[0].url})`,
+        transition: 'all 0.5s ease-in-out',
+      }}
+    />
+  );
+
   if (isCurrent) {
     return (
       <CardContainer className=' '>
         <BackgroundGradient className='rounded-[22px] '>
           <CardBody className='bg-zinc-900/90 rounded-[22px] border border-white/[0.2] group overflow-hidden h-full flex flex-col'>
             <div className='relative w-full aspect-[4/5] overflow-hidden flex-1'>
-              <div
-                className='absolute inset-0 bg-cover bg-center transform group-hover:scale-110 transition-transform duration-500 z-100'
-                style={{
-                  backgroundImage: `url(${tracksArt?.[track.id]?.imageUrl || track.album.images[0].url})`,
-                  transition: 'background-image 0.5s ease-in-out',
-                }}
-              />
+              {isVideoLoaded ? videoElement : imageElement}
               <div className='absolute h-full w-full inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300  top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center'>
                 <div className='flex flex-col items-center opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-300'>
                   <div
@@ -74,13 +102,8 @@ const TrackCard = ({
   return (
     <div className='group relative bg-zinc-900/80 rounded-xl shadow-xl w-80 border border-white/[0.1] overflow-hidden cursor-pointer'>
       <div className='aspect-square relative overflow-hidden'>
-        <div
-          className='absolute inset-0 bg-cover bg-center transform group-hover:scale-110 transition-all duration-500'
-          style={{
-            backgroundImage: `url(${tracksArt?.[track.id]?.imageUrl || track.album.images[0].url})`,
-            transition: 'background-image 0.5s ease-in-out',
-          }}
-        />
+        {imageElement}
+        {videoElement}
 
         <div className='absolute inset-0 bg-black/0 group-hover:bg-black/60 transition-all duration-300'>
           <div className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full'>
