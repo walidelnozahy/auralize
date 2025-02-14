@@ -61,7 +61,11 @@ export default function Player() {
 
   const [createdRecord, setCreatedRecord] = useState<any>(null);
   const generateImage = async () => {
-    if (!tracks[currentIndex]) return;
+    if (
+      !tracks[currentIndex] ||
+      (createdRecord && createdRecord?.status !== 'done')
+    )
+      return;
 
     try {
       setCreatedRecord({
