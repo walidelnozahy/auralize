@@ -11,6 +11,10 @@
   <a href="#build-it"><strong>Build It</strong></a>
 </p>
 
+<div align="center">
+  <h3><a href="https://auralize-ruddy.vercel.app/">✨ Try the Demo ✨</a></h3>
+</div>
+
 ## What is this?
 
 Auralize is a fun experiment that turns your Spotify music into AI art! Play your favorite tracks and watch as AI creates unique artwork based on what it "hears". Built with Next.js, Supabase, and the magic of OpenAI.
