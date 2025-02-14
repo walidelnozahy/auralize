@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createImageArt } from '@/lib/create-image-art';
 import { saveRecord } from '@/lib/supabase/save-record';
+import { generateArt } from '@/lib/generate-art';
 
 export async function POST(req: Request) {
   try {
@@ -11,7 +11,7 @@ export async function POST(req: Request) {
     });
     const record = data?.[0];
 
-    createImageArt(body, record.id);
+    generateArt(body, record.id);
 
     return NextResponse.json(record);
   } catch (error) {

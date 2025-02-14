@@ -7,7 +7,7 @@ const statusOptions = {
 };
 export function StatusSpinner({ status }: { status: string }) {
   const statusText = statusOptions[status as keyof typeof statusOptions];
-  if (status === 'done' || !status) return null;
+  if (status === 'done' || !status || status === 'error') return null;
   return (
     <div className='absolute bottom-16 left-0 right-0 flex items-center justify-center animate-fade-in-up'>
       <AudioWave className='w-12 h-12 text-white' />
