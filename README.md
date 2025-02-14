@@ -1,5 +1,5 @@
 <div align="center">
-  <img alt="Auralize - See Your Music!" src="./app/assets/meta-image.png">
+  <img alt="Auralize - See Your Music!" src="./app/meta-image.png">
   <h1>Auralize ✨</h1>
   <p>Ever wondered what your music looks like? Now you can find out!</p>
 </div>
