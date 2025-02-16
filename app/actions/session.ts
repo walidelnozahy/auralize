@@ -8,9 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 
-export const signInWithSpotifyAction = async (
-  redirectTo: string = '/auth/callback',
-) => {
+export const signInWithSpotifyAction = async () => {
   const supabase = await createClient();
   const origin = (await headers()).get('origin');
 
@@ -24,7 +22,7 @@ export const signInWithSpotifyAction = async (
   const { data } = await supabase.auth.signInWithOAuth({
     provider: 'spotify',
     options: {
-      redirectTo: `${origin}${redirectTo}`,
+      redirectTo: `${origin}/auth/callback`,
       scopes, // Add scopes here
     },
   });

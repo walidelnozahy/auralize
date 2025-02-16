@@ -11,7 +11,13 @@
 </p>
 
 <div align="center">
-  <h3><a href="https://auralize-ruddy.vercel.app/">✨ Try the Demo ✨</a></h3>
+  <h5><a href="https://auralize-ruddy.vercel.app/">✨ Try the Demo ✨</a></h5>
+</div>
+
+<div align="center">
+  
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fwalidelnozahy%2Fauralize)
+
 </div>
 
 ## What is this?
