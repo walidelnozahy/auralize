@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import {
-  SPOTIFY_ACCESS_TOKEN,
-  SPOTIFY_REFRESH_TOKEN,
+  SPOTIFY_ACCESS_TOKEN_KEY,
+  SPOTIFY_REFRESH_TOKEN_KEY,
 } from '../spotify/constants';
 
 export const createClient = async () => {
@@ -40,13 +40,13 @@ export const storeSpotifyTokens = async (
   try {
     const cookieStore = await cookies();
 
-    cookieStore.set(SPOTIFY_ACCESS_TOKEN, accessToken, {
+    cookieStore.set(SPOTIFY_ACCESS_TOKEN_KEY, accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',
     });
 
-    cookieStore.set(SPOTIFY_REFRESH_TOKEN, refreshToken, {
+    cookieStore.set(SPOTIFY_REFRESH_TOKEN_KEY, refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',

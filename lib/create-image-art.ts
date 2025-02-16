@@ -1,6 +1,6 @@
 import { openai } from './openai/client';
 import { generateArtPrompt } from './openai/generate-art-prompt';
-import { getPublicUrl } from './supabase/get-image-from-path';
+import { generatePublicUrl } from './supabase/generate-image-public-url';
 import { saveRecord } from './supabase/save-record';
 import { uploadImageFromUrl } from './supabase/upload-image';
 
@@ -42,7 +42,7 @@ export async function createImageArt(body: any, recordId: string) {
       status: 'done',
     });
 
-    const imageUrl = await getPublicUrl(generatedImagePath || '');
+    const imageUrl = await generatePublicUrl(generatedImagePath || '');
     return imageUrl;
   } catch (error) {
     console.error('Error creating image art:', error);

@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { type NextRequest, NextResponse } from 'next/server';
 import {
-  SPOTIFY_ACCESS_TOKEN,
-  SPOTIFY_REFRESH_TOKEN,
+  SPOTIFY_ACCESS_TOKEN_KEY,
+  SPOTIFY_REFRESH_TOKEN_KEY,
 } from '../spotify/constants';
 
 export const updateSession = async (request: NextRequest) => {
@@ -55,12 +55,12 @@ export const updateSession = async (request: NextRequest) => {
     const providerRefreshToken = session?.provider_refresh_token;
 
     if (providerToken && providerRefreshToken) {
-      response.cookies.set(SPOTIFY_ACCESS_TOKEN, providerToken, {
+      response.cookies.set(SPOTIFY_ACCESS_TOKEN_KEY, providerToken, {
         httpOnly: true,
         secure: false,
         path: '/',
       });
-      response.cookies.set(SPOTIFY_REFRESH_TOKEN, providerRefreshToken, {
+      response.cookies.set(SPOTIFY_REFRESH_TOKEN_KEY, providerRefreshToken, {
         httpOnly: true,
         secure: false,
         path: '/',

@@ -1,5 +1,5 @@
 import { signInWithSpotifyAction } from './actions/session';
-import { Spotlight } from '@/components/ui/spotlight-new';
+import { Spotlight } from '@/components/ui/spotlight';
 import { CursorGlow } from '@/components/cursor-glow';
 import { StarBorder } from '@/components/star-border';
 import { hasEnvVars } from '@/lib/check-env-vars';

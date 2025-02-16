@@ -1,6 +1,9 @@
 import { cookies } from 'next/headers';
 import { storeSpotifyTokens } from '@/lib/supabase/server';
-import { SPOTIFY_ACCESS_TOKEN, SPOTIFY_REFRESH_TOKEN } from './constants';
+import {
+  SPOTIFY_ACCESS_TOKEN_KEY,
+  SPOTIFY_REFRESH_TOKEN_KEY,
+} from './constants';
 
 export const refreshSpotifyAccessToken = async () => {
   const cookieStore = await cookies();
@@ -45,8 +48,8 @@ export const refreshSpotifyAccessToken = async () => {
 export const getSpotifyAccessToken = async () => {
   const cookieStore = await cookies();
 
-  const accessToken = cookieStore.get(SPOTIFY_ACCESS_TOKEN)?.value;
-  const refreshToken = cookieStore.get(SPOTIFY_REFRESH_TOKEN)?.value;
+  const accessToken = cookieStore.get(SPOTIFY_ACCESS_TOKEN_KEY)?.value;
+  const refreshToken = cookieStore.get(SPOTIFY_REFRESH_TOKEN_KEY)?.value;
 
   if (!accessToken || !refreshToken) {
     throw new Error('No Spotify token found. User must log in again.');

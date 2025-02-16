@@ -1,8 +1,8 @@
 'use server';
 
 import {
-  SPOTIFY_ACCESS_TOKEN,
-  SPOTIFY_REFRESH_TOKEN,
+  SPOTIFY_ACCESS_TOKEN_KEY,
+  SPOTIFY_REFRESH_TOKEN_KEY,
 } from '@/lib/spotify/constants';
 import { createClient } from '@/lib/supabase/server';
 import { cookies, headers } from 'next/headers';
@@ -38,13 +38,13 @@ export const signOutAction = async () => {
 
   // 🔥 Clear Spotify cookies
   const cookieStore = await cookies();
-  cookieStore.set(SPOTIFY_ACCESS_TOKEN, '', {
+  cookieStore.set(SPOTIFY_ACCESS_TOKEN_KEY, '', {
     httpOnly: true,
     secure: false,
     path: '/',
     maxAge: 0,
   });
-  cookieStore.set(SPOTIFY_REFRESH_TOKEN, '', {
+  cookieStore.set(SPOTIFY_REFRESH_TOKEN_KEY, '', {
     httpOnly: true,
     secure: false,
     path: '/',
